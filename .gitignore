@@ -3,7 +3,7 @@ build
 dist
 *.pyc
 *.swp
-
+.python-version
 Lib
 Scripts
 *.cfg
