@@ -32,34 +32,32 @@ class UVISCalibrator(object):
         )
 
     def get_lab_sensitivity(self):
-        if self.uvis_channel == "FUV":
-            lsdata = np.genfromtxt(
-                self.calib_dir / "FUV_1999_Lab_Cal.dat", skip_header=1
+        if self.uvis_channel != "FUV":
+            raise CalibrationException(
+                f"Calibrations for channel {self.uvis_channel} not available."
             )
-            wcal = np.append(lsdata[:, 0], lsdata[:, 3])
-            ucal = np.append(lsdata[:, 1], lsdata[:, 4])
-            ucalerr = np.append(lsdata[:, 2], lsdata[:, 5])
-            return wcal, ucal, ucalerr
-        raise CalibrationException(
-            f"Calibrations for channel {self.uvis_channel} not available."
-        )
+        lsdata = np.genfromtxt(self.calib_dir / "FUV_1999_Lab_Cal.dat", skip_header=1)
+        wcal = np.append(lsdata[:, 0], lsdata[:, 3])
+        ucal = np.append(lsdata[:, 1], lsdata[:, 4])
+        ucalerr = np.append(lsdata[:, 2], lsdata[:, 5])
+        return wcal, ucal, ucalerr
 
     def get_wavelength(self, bbin=1):
-        if self.uvis_channel == "FUV":
-            d = 1e7 / 1066
-            alpha = np.radians(9.22 + 0.032) + 3.46465e-5
-            beta = (np.arange(1024) - 511.5) * 0.025 * 0.99815 / 300
-            beta = np.arctan(beta) + np.radians(0.032) + 3.46465e-5
-            lam = d * (np.sin(alpha) + np.sin(beta))
-            if bbin == 1:
-                return lam
-            e_wavelength = np.full((int(1024 / bbin)), np.nan)
-            for iii in range(len(e_wavelength)):
-                e_wavelength[iii] = np.mean(lam[iii * bbin : (iii + 1) * bbin])
-            return e_wavelength
-        raise CalibrationException(
-            f"Wavelength scales for channel {self.uvis_channel} not available."
-        )
+        if self.uvis_channel != "FUV":
+            raise CalibrationException(
+                f"Wavelength scales for channel {self.uvis_channel} not available."
+            )
+        d = 1e7 / 1066
+        alpha = np.radians(9.22 + 0.032) + 3.46465e-5
+        beta = (np.arange(1024) - 511.5) * 0.025 * 0.99815 / 300
+        beta = np.arctan(beta) + np.radians(0.032) + 3.46465e-5
+        lam = d * (np.sin(alpha) + np.sin(beta))
+        if bbin == 1:
+            return lam
+        e_wavelength = np.full((int(1024 / bbin)), np.nan)
+        for iii in range(len(e_wavelength)):
+            e_wavelength[iii] = np.mean(lam[iii * bbin : (iii + 1) * bbin])
+        return e_wavelength
 
     def prep_cal_modifiers(self):
         # Load file
