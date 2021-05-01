@@ -1,0 +1,11 @@
+__pycache__ 
+build
+dist
+*.pyc
+*.swp
+
+Lib
+Scripts
+*.cfg
+
+.idea
