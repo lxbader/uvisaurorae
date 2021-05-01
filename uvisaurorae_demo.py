@@ -1,12 +1,12 @@
 import logging
 from pathlib import Path
 
-from uvisaurorae.projection import UVISAuroralProjector
 from uvisaurorae.executions import execute_projection_command
+from uvisaurorae.projection import UVISAuroralProjector
 
 if __name__ == "__main__":
 
-    logging.basicConfig(filename=str(Path.cwd() / 'example.log'), level=logging.INFO)
+    logging.basicConfig(filename=str(Path.cwd() / "example.log"), level=logging.INFO)
 
     uvis_dir = Path("D:/uvis_projection_test/uvis_data")
     spice_dir = Path("D:/uvis_projection_test/spice_data")
