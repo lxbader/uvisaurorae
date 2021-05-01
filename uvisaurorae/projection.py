@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 from uvisaurorae.data_retrieval import make_metakernel
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -42,6 +41,7 @@ class UVISAuroralProjector(object):
         self.spice_dir = spice_dir
         self.metakernels = []
         self.raise_spice_insufficient = raise_spice_insufficient
+        self.reset_spice()
 
     def reset_spice(self):
         # Clear SPICE kernels
@@ -57,9 +57,7 @@ class UVISAuroralProjector(object):
         # Note that "saturn1100.tpc" redefines the size of Saturn (may be needed to refresh the kernel pool before other
         # calculations using this parameter are performed)
         for kernel in ["naif0012.tls", "saturn1100.tpc", "frame_ksmag.tf"]:
-            k = importlib_resources.files(
-                "uvis_auroral_projections.resources"
-            ).joinpath(kernel)
+            k = importlib_resources.files("uvisaurorae.resources").joinpath(kernel)
             try:
                 spice.kinfo(str(k))
             except spice.stypes.SpiceyError:
@@ -145,11 +143,16 @@ class UVISAuroralProjector(object):
                 )
             if not found:
                 return np.array([np.nan, np.nan]), np.nan
-        except (spice.utils.exceptions.SpiceSPKINSUFFDATA, spice.utils.exceptions.SpiceCKINSUFFDATA) as e:
+        except (
+            spice.utils.exceptions.SpiceSPKINSUFFDATA,
+            spice.utils.exceptions.SpiceCKINSUFFDATA,
+        ) as e:
             if self.raise_spice_insufficient:
                 raise e
             else:
-                logger.warning("Insufficient SPICE data to calculate surface intercept, ignored")
+                logger.warning(
+                    "Insufficient SPICE data to calculate surface intercept, ignored"
+                )
                 return np.array([np.nan, np.nan]), np.nan
 
         center_proj_sph = np.array(spice.reclat(center_proj_cart))
@@ -181,6 +184,8 @@ def project_data_parallel(
     if n_workers is None:
         n_workers = cpu_count()
         logger.info(f"Auto setting to use {n_workers} workers")
+    else:
+        logger.info(f"Using {n_workers} workers")
     n_workers = min(n_workers, cpu_count())
 
     if records is None:
@@ -391,7 +396,9 @@ def project_data(
 
     if not disable_progress:
         tstop = time.time()
-        logger.info("Projection successful, took {:0.1f} seconds".format(tstop - tstart))
+        logger.info(
+            "Projection successful, took {:0.1f} seconds".format(tstop - tstart)
+        )
 
     projector.remove_metakernels()
 

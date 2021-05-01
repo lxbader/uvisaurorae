@@ -1,0 +1,458 @@
+KPL/IK
+
+\beginlabel
+PDS_VERSION_ID               = PDS3
+RECORD_TYPE                  = STREAM
+RECORD_BYTES                 = "N/A"
+^SPICE_KERNEL                = "cas_sru_v02.ti"
+MISSION_NAME                 = "CASSINI-HUYGENS"
+SPACECRAFT_NAME              = "CASSINI ORBITER"
+DATA_SET_ID                  = "CO-S/J/E/V-SPICE-6-V1.0"
+KERNEL_TYPE_ID               = IK
+PRODUCT_ID                   = "cas_sru_v02.ti"
+PRODUCT_CREATION_TIME        = 2005-12-09T11:03:17
+PRODUCER_ID                  = "NAIF/JPL"
+MISSION_PHASE_NAME           = "N/A"
+PRODUCT_VERSION_TYPE         = ACTUAL
+PLATFORM_OR_MOUNTING_NAME    = "REMOTE SENSING PALETTE"
+START_TIME                   = "N/A"
+STOP_TIME                    = "N/A"
+SPACECRAFT_CLOCK_START_COUNT = "N/A"
+SPACECRAFT_CLOCK_STOP_COUNT  = "N/A"
+TARGET_NAME                  = "N/A"
+INSTRUMENT_NAME              = "STELLAR REFERENCE UNIT"
+NAIF_INSTRUMENT_ID           = {
+                               -82009,
+                               -82008,
+                               -82002,
+                               -82001
+                               }
+SOURCE_PRODUCT_ID            = "N/A"
+NOTE                         = "See comments in the file for details"
+OBJECT                       = SPICE_KERNEL
+  INTERCHANGE_FORMAT         = ASCII
+  KERNEL_TYPE                = INSTRUMENT
+  DESCRIPTION                = "This file contains parameters for the
+mounting alignment, internal and FOV geometry for the Cassini Stellar
+Reference Unit (SRU) detectors. "
+END_OBJECT                   = SPICE_KERNEL
+\endlabel
+
+
+SRU Instrument Kernel
+==============================================================================
+ 
+   This instrument kernel (I-kernel) contains references to the mounting
+   alignment, internal and FOV geometry for the Cassini Stellar Reference Unit
+   (SRU) detectors.
+ 
+ 
+Version and Date
+----------------------------------------------------------
+ 
+   The TEXT_KERNEL_ID stores version information of loaded project text
+   kernels. Each entry associated with the keyword is a string that consists
+   of four parts: the kernel name, version, entry date, and type. For example,
+   the ISS I-kernel might have an entry as follows:
+ 
+           TEXT_KERNEL_ID += 'CASSINI_ISS V0.0.0 29-SEPTEMBER-1999 IK'
+                                  |          |         |            |
+                                  |          |         |            |
+              KERNEL NAME <-------+          |         |            |
+                                             |         |            V
+                             VERSION <-------+         |       KERNEL TYPE
+                                                       |
+                                                       V
+                                                  ENTRY DATE
+ 
+   SRU I-Kernel Version:
+ 
+           \begindata
+ 
+           TEXT_KERNEL_ID += 'CASSINI_SRU V0.2.0 17-SEPTEMBER-2003 IK'
+ 
+           \begintext
+ 
+   Version 0.2 -- September 17, 2003 -- Lee Elson
+ 
+            --   Corrected several documentation typos.
+ 
+   Version 0.1 -- April 23, 2001 -- Scott Turner
+ 
+            --   Updated kernel to utilize new FOV ANGLES specification.
+ 
+   Version 0.0 -- March 12, 2001 -- Scott Turner
+ 
+            --   Initial Prototype Release for Review.
+ 
+ 
+References
+----------------------------------------------------------
+ 
+            1.   ``Cassini Science Instruments and Investigations'', Revised
+                 Second Printing. Stephen J. Edberg.
+ 
+            2.   ``Kernel Pool Required Reading''
+ 
+            3.   <<Insert Descriptive Document Reference>>
+ 
+            4.   Cassini/NAIF SPICE Workship, November 8-9, 1999.
+ 
+            5.   Cassini Spacecraft Frames Definition Kernel
+ 
+            6.   Cassini Spacecraft Attitude and Articulation Control
+                 Subsystem Interface Control Document (JPL:D-12463,
+                 PD:699-113)
+ 
+ 
+Contact Information
+----------------------------------------------------------
+ 
+   Direct questions, comments or concerns about the contents of this kernel
+   to:
+ 
+           Lee Elson, NAIF/JPL, (818)-354-4223, Lee.Elson@jpl.nasa.gov
+ 
+ 
+Implementation Notes
+----------------------------------------------------------
+ 
+   This file is used by the SPICE system as follows: programs that make use of
+   this instrument kernel must ``load'' the kernel, normally during program
+   initialization. Loading the kernel associates data items with their names
+   in a data structure called the ``kernel pool''. The SPICELIB routine FURNSH
+   and CSPICE routine furnsh_c load SPICE kernels as shown below:
+ 
+   FORTRAN (SPICELIB)
+ 
+           CALL FURNSH ( 'kernel_name' )
+ 
+   C (CSPICE)
+ 
+           furnsh_c ( "kernel_name" )
+ 
+   In order for a program or subroutine to extract data from the pool, the
+   SPICELIB routines GDPOOL and GIPOOL are used. See [2] for details.
+ 
+   This file was created and may be updated with a text editor or word
+   processor.
+ 
+ 
+Naming Conventions
+----------------------------------------------------------
+ 
+   All names referencing values in this I-kernel start with the characters
+   `INS' followed by the NAIF Cassini spacecraft ID number (-82) followed by a
+   NAIF three digit code for the SRU detectors. (SRU-A = 001, SRU-B = 002,
+   SRU-A_RAD = 008, SRU-B_RAD = 009).
+ 
+   The remainder of the name is an underscore character followed by the unique
+   name of the data item. For example, the SRU boresight direction in the SRU
+   frame (``CASSINI_SRU-A'' -- see [5] ) is specified by:
+ 
+           INS-82001_BORESIGHT
+ 
+   The upper bound on the length of the name of any data item is 32
+   characters.
+ 
+   If the same item is included in more than one file, or if the same item
+   appears more than once within a single file, the latest value supersedes
+   any earlier values.
+ 
+ 
+SRU description
+----------------------------------------------------------
+ 
+   From [3]:
+ 
+   Awaiting high-level descriptive information reference document.
+ 
+ 
+SRU Field of View Parameters
+----------------------------------------------------------
+ 
+   The field of view parameters for the two focal planes that constitute the
+   SRU detectors are:
+ 
+            --   Stellar Reference Unit-A (SRU-A)
+ 
+            --   Stellar Reference Unit-B (SRU-B)
+ 
+ 
+           Rectangular FOVs:
+ 
+           --------------  ---------------------  ---------------------
+             Detector           Horizontal              Vertical
+           --------------  ---------------------  ---------------------
+              SRU-A            15.0 degrees           15.0 degrees
+ 
+              SRU-B            15.0 degrees           15.0 degrees
+           --------------  ---------------------  ---------------------
+ 
+ 
+   The keywords INS[ID]_FOV_FRAME, INS[ID]_FOV_SHAPE, INS[ID]_BORESIGHT, and
+   FOV ANGLES specification keywords defined below are used to describe the
+   instrument field of view. Since the fields of view are rectangular, the
+   INS[ID]_FOV_SHAPE will be 'RECTANGLE'. GETFOV returns four vectors. All FOV
+   boresights lie along the Z-axis.
+ 
+ 
+Stellar Reference Unit-A (SRU-A) FOV Definition
+ 
+   SRU-A possesses a rectangular field of view, so four boundary corner
+   vectors require visualization. First consider looking down the X-axis in
+   the CASSINI_SRU-A frame at the X=0 plane. This permits the computation of
+   the Y components of the boundary corner vectors. In this plane the half
+   angle of note is 7.5 degrees. (Note we are arbitrarily choosing a vector
+   that terminates in the Z=1 plane.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /   o  |
+                                  |/  7.5   |
+                                  x--------------->
+                                X  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Now from here we see that the Y component of one boundary corner vector is:
+ 
+           Y Component = +/- 1.0 * tan ( 7.5 degrees )
+                       = +/- 0.131652498
+ 
+   Since the field of view is square, precisely the same computation holds for
+   the X components. Utilizing the ANGLES FOV specification:
+ 
+   Stellar Reference Unit-A (SRU-A):
+ 
+           \begindata
+ 
+           INS-82001_FOV_FRAME                 = 'CASSINI_SRU-A'
+           INS-82001_FOV_SHAPE                 = 'RECTANGLE'
+           INS-82001_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82001_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82001_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82001_FOV_REF_ANGLE             = ( 7.5 )
+           INS-82001_FOV_CROSS_ANGLE           = ( 7.5 )
+           INS-82001_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+Stellar Reference Unit-B (SRU-B) FOV Definition
+ 
+   SRU-B is identical to SRU-A. It too possesses a rectangular field of view,
+   so four boundary corner vectors require visualization. As before consider
+   looking down the X-axis in the CASSINI_SRU-B frame at the X=0 plane. This
+   permits the computation of the Y components of the boundary corner vectors.
+   In this plane the half angle of note is 7.5 degrees. (Note we are
+   arbitrarily choosing a vector that terminates in the Z=1 plane.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /   o  |
+                                  |/  7.5   |
+                                  x--------------->
+                                X  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Now from here we see that the Y component of one boundary corner vector is:
+ 
+           Y Component = +/- 1.0 * tan ( 7.5 degrees )
+                       = +/- 0.131652498
+ 
+   Since the field of view is square, precisely the same computation holds for
+   the X components. Utilizing the ANGLES FOV specification:
+ 
+   Stellar Reference Unit-B (SRU-B):
+ 
+           \begindata
+ 
+           INS-82002_FOV_FRAME                 = 'CASSINI_SRU-B'
+           INS-82002_FOV_SHAPE                 = 'RECTANGLE'
+           INS-82002_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82002_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82002_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82002_FOV_REF_ANGLE             = ( 7.5 )
+           INS-82002_FOV_CROSS_ANGLE           = ( 7.5 )
+           INS-82002_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+   The FOV values for the SRU radiators are place holders until a time when
+   the real values are provided.
+ 
+ 
+SRU-A Radiator (SRU-A_RAD):
+ 
+           \begindata
+ 
+           INS-82008_FOV_FRAME                 = 'CASSINI_SRU-A_RAD'
+           INS-82008_FOV_SHAPE                 = 'CIRCLE'
+           INS-82008_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82008_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82008_FOV_REF_VECTOR      = (
+ 
+                 +1.0000000000000000   0.0000000000000000  +0.0000000000000000
+ 
+                                                 )
+           INS-82008_FOV_REF_ANGLE       = ( 90.0 )
+           INS-82008_FOV_ANGLE_UNITS     = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+SRU-B Radiator (SRU-B_RAD):
+ 
+           \begindata
+ 
+           INS-82009_FOV_FRAME                 = 'CASSINI_SRU-B_RAD'
+           INS-82009_FOV_SHAPE                 = 'CIRCLE'
+           INS-82009_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82009_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82009_FOV_REF_VECTOR            = (
+ 
+                 +1.0000000000000000   0.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82009_FOV_REF_ANGLE             = ( 90.0 )
+           INS-82009_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+SRU Pixel Parameters:
+----------------------------------------------------------
+ 
+   These parameters describe the pixel structure associated with the
+   instruments and their fields of views. In some cases this is a
+   generalization of the notion of pixel, in that instead of representing
+   pixels on a CCD they may represent a collection of individual detectors.
+ 
+   Stellar Reference Unit-A (SRU-A):
+ 
+           \begindata
+ 
+           INS-82001_FOV_CENTER_PIXEL  = ( 511.5, 511.5 )
+           INS-82001_PIXEL_SAMPLES     = ( 1024 )
+           INS-82001_PIXEL_LINES       = ( 1024 )
+ 
+           \begintext
+ 
+   Stellar Reference Unit-B (SRU-B):
+ 
+           \begindata
+ 
+           INS-82002_FOV_CENTER_PIXEL  = ( 511.5, 511.5 )
+           INS-82002_PIXEL_SAMPLES     = ( 1024 )
+           INS-82002_PIXEL_LINES       = ( 1024 )
+ 
+           \begintext
+ 
+   SRU-A Radiator (SRU-A_RAD):
+ 
+           \begindata
+ 
+           INS-82008_FOV_CENTER_PIXEL  = ( 0, 0 )
+           INS-82008_PIXEL_SAMPLES     = ( 1 )
+           INS-82008_PIXEL_LINES       = ( 1 )
+ 
+           \begintext
+ 
+   SRU-B Radiator (SRU-B_RAD):
+ 
+           \begindata
+ 
+           INS-82009_FOV_CENTER_PIXEL  = ( 0, 0 )
+           INS-82009_PIXEL_SAMPLES     = ( 1 )
+           INS-82009_PIXEL_LINES       = ( 1 )
+ 
+           \begintext
+ 
+ 
+NAIF ID Code to Name Mapping
+----------------------------------------------------------
+ 
+   The following keywords define names for the corresponding ID Codes. See [4]
+   for details.
+ 
+           \begindata
+ 
+           NAIF_BODY_NAME += ( 'CASSINI_SRU-A' )
+           NAIF_BODY_CODE += ( -82001 )
+ 
+           NAIF_BODY_NAME += ( 'CASSINI_SRU-B' )
+           NAIF_BODY_CODE += ( -82002 )
+ 
+           NAIF_BODY_NAME += ( 'CASSINI_SRU-A_RAD' )
+           NAIF_BODY_CODE += ( -82008 )
+ 
+           NAIF_BODY_NAME += ( 'CASSINI_SRU-B_RAD' )
+           NAIF_BODY_CODE += ( -82009 )
+ 
+           \begintext
+ 
+ 
+Platform ID
+----------------------------------------------------------
+ 
+   The SRU instrument is mounted on the Remote Sensing Palette, which is
+   connected to the Cassini Spacecraft body. Therefore the value in the
+   keywords below are -82000.
+ 
+           \begindata
+ 
+           INS-82001_PLATFORM_ID = ( -82000 )
+           INS-82002_PLATFORM_ID = ( -82000 )
+           INS-82008_PLATFORM_ID = ( -82000 )
+           INS-82009_PLATFORM_ID = ( -82000 )
+ 
+           \begintext
+ 

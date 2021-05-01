@@ -1,5 +1,6 @@
 import bz2
 import datetime as dt
+import logging
 import re
 import tempfile
 from pathlib import Path
@@ -12,20 +13,20 @@ from scipy.interpolate import interp1d
 
 from uvisaurorae import calibration
 
-# Load leap second kernel if not loaded already
-lsk = importlib_resources.files("uvis_auroral_projections.resources").joinpath(
-    "naif0012.tls"
-)
-try:
-    spice.kinfo(str(lsk))
-except spice.stypes.SpiceyError:
-    spice.furnsh(str(lsk))
+logger = logging.getLogger(__name__)
 
 
 class UVISDataError(Exception):
     def __init__(self, msg=None):
         super(UVISDataError, self).__init__(msg)
 
+
+# Load leap second kernel if not loaded already
+lsk = importlib_resources.files("uvisaurorae.resources").joinpath("naif0012.tls")
+try:
+    spice.kinfo(str(lsk))
+except spice.stypes.SpiceyError:
+    spice.furnsh(str(lsk))
 
 uvis_cal = calibration.UVISCalibrator()
 
@@ -271,5 +272,5 @@ def save_to_fits(
 
     hdul = fits.HDUList([hdu, hdu_angles])
     hdul.writeto(file_name, overwrite=True)
-    print(f"Successfully saved file {file_name}")
+    logger.info(f"Successfully saved file {file_name}")
     return file_name, hemisphere

@@ -15,9 +15,9 @@ class CalibrationException(Exception):
 class UVISCalibrator(object):
     def __init__(self, channel="FUV"):
         self.uvis_channel = channel
-        self.calib_dir = importlib_resources.files(
-            "uvis_auroral_projections.resources"
-        ).joinpath("calibration_files")
+        self.calib_dir = importlib_resources.files("uvisaurorae.resources").joinpath(
+            "calibration_files"
+        )
 
         self.wcal, self.ucal, self.ucalerr = self.get_lab_sensitivity()
         self.wavelength = self.get_wavelength()

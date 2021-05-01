@@ -1,0 +1,482 @@
+KPL/IK
+
+\beginlabel
+PDS_VERSION_ID               = PDS3
+RECORD_TYPE                  = STREAM
+RECORD_BYTES                 = "N/A"
+^SPICE_KERNEL                = "cas_rpws_v01.ti"
+MISSION_NAME                 = "CASSINI-HUYGENS"
+SPACECRAFT_NAME              = "CASSINI ORBITER"
+DATA_SET_ID                  = "CO-S/J/E/V-SPICE-6-V1.0"
+KERNEL_TYPE_ID               = IK
+PRODUCT_ID                   = "cas_rpws_v01.ti"
+PRODUCT_CREATION_TIME        = 2005-06-22T17:11:54
+PRODUCER_ID                  = "NAIF/JPL"
+MISSION_PHASE_NAME           = "N/A"
+PRODUCT_VERSION_TYPE         = ACTUAL
+PLATFORM_OR_MOUNTING_NAME    = "CASSINI SPACECRAFT"
+START_TIME                   = "N/A"
+STOP_TIME                    = "N/A"
+SPACECRAFT_CLOCK_START_COUNT = "N/A"
+SPACECRAFT_CLOCK_STOP_COUNT  = "N/A"
+TARGET_NAME                  = "N/A"
+INSTRUMENT_NAME              = "RADIO AND PLASMA WAVE SCIENCE"
+NAIF_INSTRUMENT_ID           = {
+                               -82731,
+                               -82730
+                               }
+SOURCE_PRODUCT_ID            = "N/A"
+NOTE                         = "See comments in the file for details"
+OBJECT                       = SPICE_KERNEL
+  INTERCHANGE_FORMAT         = ASCII
+  KERNEL_TYPE                = INSTRUMENT
+  DESCRIPTION                = "This file contains parameters for the
+mounting alignment, internal and FOV geometry for the Cassini Radio and
+Plasma Wave Science (RPWS) instruments. "
+END_OBJECT                   = SPICE_KERNEL
+\endlabel
+
+
+RPWS Instrument Kernel
+==============================================================================
+ 
+   This instrument kernel (I-kernel) contains references to the mounting
+   alignment, internal and FOV geometry for the Cassini Radio and Plasma Wave
+   Science (RPWS) instruments.
+ 
+ 
+Version and Date
+----------------------------------------------------------
+ 
+   The TEXT_KERNEL_ID stores version information of loaded project text
+   kernels. Each entry associated with the keyword is a string that consists
+   of four parts: the kernel name, version, entry date, and type. For example,
+   the ISS I-kernel might have an entry as follows:
+ 
+           TEXT_KERNEL_ID += 'CASSINI_ISS V0.0.0 29-SEPTEMBER-1999 IK'
+                                  |          |         |            |
+                                  |          |         |            |
+              KERNEL NAME <-------+          |         |            |
+                                             |         |            V
+                             VERSION <-------+         |       KERNEL TYPE
+                                                       |
+                                                       V
+                                                  ENTRY DATE
+ 
+   RPWS I-Kernel Version:
+ 
+           \begindata
+ 
+           TEXT_KERNEL_ID += 'CASSINI_RPWS V0.1.0 23-APRIL-2001 IK'
+ 
+           \begintext
+ 
+   Version 0.1 -- April 23, 2001 -- Scott Turner
+ 
+            --   Updated kernel to utilize new FOV ANGLES specification.
+ 
+   Version 0.0 -- October 5, 2000 -- Scott Turner
+ 
+            --   Initial Prototype Release for Review
+ 
+ 
+References
+----------------------------------------------------------
+ 
+            1.   ``Cassini Science Instruments and Investigations'', Revised
+                 Second Printing. Stephen J. Edberg.
+ 
+            2.   ``Kernel Pool Required Reading''
+ 
+            3.   JPL Cassini Project Web Page describing the instruments.
+ 
+            4.   Cassini/NAIF SPICE Workship, November 8-9, 1999.
+ 
+            5.   Email from Jeff Boyer regarding necessary data for footprint
+                 calculations.
+ 
+            6.   Cassini Spacecraft Frames Definition Kernel
+ 
+            7.   CASPER RPWS I-kernel Version 4.0
+ 
+ 
+Contact Information
+----------------------------------------------------------
+ 
+   Direct questions, comments or concerns about the contents of this kernel
+   to:
+ 
+           Scott Turner, NAIF/JPL, (818)-345-3157, sturner@spice.jpl.nasa.gov
+ 
+ 
+Implementation Notes
+----------------------------------------------------------
+ 
+   This file is used by the SPICE system as follows: programs that make use of
+   this instrument kernel must ``load'' the kernel, normally during program
+   initialization. Loading the kernel associates data items with their names
+   in a data structure called the ``kernel pool''. The SPICELIB routine FURNSH
+   and CSPICE routine furnsh_c load SPICE kernels as shown below:
+ 
+   FORTRAN (SPICELIB)
+ 
+           CALL FURNSH ( 'kernel_name' )
+ 
+   C (CSPICE)
+ 
+           furnsh_c ( "kernel_name" )
+ 
+   In order for a program or subroutine to extract data from the pool, the
+   SPICELIB routines GDPOOL and GIPOOL are used. See [2] for details.
+ 
+   This file was created and may be updated with a text editor or word
+   processor.
+ 
+ 
+Naming Conventions
+----------------------------------------------------------
+ 
+   All names referencing values in this I-kernel start with the characters
+   `INS' followed by the NAIF Cassini spacecraft ID number (-82) followed by a
+   NAIF three digit code for the RPWS detectors. (RPWS = 730, RPWS_LP = 731 ).
+ 
+   The remainder of the name is an underscore character followed by the unique
+   name of the data item. For example, the RPWS boresight direction in the
+   RPWS frame (``CASSINI_RPWS'' -- see [6] ) is specified by:
+ 
+           INS-82730_BORESIGHT
+ 
+   The upper bound on the length of the name of any data item is 32
+   characters.
+ 
+   If the same item is included in more than one file, or if the same item
+   appears more than once within a single file, the latest value supersedes
+   any earlier values.
+ 
+ 
+RPWS description
+----------------------------------------------------------
+ 
+   From [3]:
+ 
+   The Radio and Plasma Wave Science (RPWS) instrument will be used to
+   investigate electric and magnetic waves in space plasma at Saturn. Plasma
+   is essentially a soup of free electrons and positively charged ions, the
+   latter being atoms that have lost one or more electrons. Plasma makes up
+   most of the universe and is created by the heating of gases by stars and
+   other bodies in space. Plasma is distributed by the solar wind, and it is
+   also "contained" by the magnetic fields (i.e., the magnetoshperes) of
+   bodies such as Saturn and Titan. The Cassini RPWS instrument will measure
+   the a.c. electric and magnetic fields in the interplanetary medium and
+   planetary magnetospheres and will directly measure the electron density and
+   temperature of the plasma in the vicinity of the spacecraft.
+ 
+   The major components of the RPWS Subsystem are the electric field sensor,
+   the magnetic search coil sensor assembly, the Langmuir probe sensor
+   assembly, and the instrument main electronics. For information on these
+   components, see below.
+ 
+   (RPWS)
+ 
+   The electric field sensor is made up of three deployable antenna elements,
+   an associated preamplifier, and antenna deployment mechanism drive
+   electronics. The antennas are composed of interlocking sections made from
+   beryllium copper, and each antenna element is deployable separately to 10
+   meters with its own 400-Hz a.c. motor. The electric field preamplifier is
+   used to add gain to the output signals from the antennas. The antenna
+   deployment mechanism electronics convert ±15 volt primary power to 400-Hz
+   a.c. power for the antenna drive motors.
+ 
+   The magnetic search coil sensor assembly is composed of a triaxial sensor
+   assembly and an associated preamplifier. The triaxial sensor consists of
+   three orthogonal (i.e., perpendicular) metallic alloy cores with two sets
+   of windings each, one to produce flux in the core and another to detect the
+   flux. The magnetic search coil preamplifier adds gain to the output signal
+   from the sensor assembly.
+ 
+   The Langmuir probe sensor assembly consists of a sensor, a preamplifier,
+   and associated control electronics. The Langmuir probe sensor is a 5-cm
+   diameter sphere located at the end of a rod approximately 1 meter in
+   length. The sensor rod is folded in a stowed state until deployed in
+   flight. The probe sensor preamplifier adds gain to the output from the
+   probe.
+ 
+   The RPWS main electronics includes a digital data processing unit, a
+   high-frequency receiver, a wideband receiver, a medium-frequency receiver,
+   a low-frequency five-channel waveform receiver, the Langmuir probe bias
+   circuitry, and a power converter. For information on these components, see
+   below.
+ 
+   (RPWS Main Electronics)
+ 
+   The data processing unit (DPU) will control all instrument functions and
+   will handle all communications with the orbiter. It will contain a large
+   block of RAM to be used as waveform storage for the five-channel waveform
+   receiver. Software in the DPU will be used to enhance the scientific return
+   of the instrument by performing various analysis and data compression
+   operations.
+ 
+   The high-frequency receiver is a digital waveform processor that operates
+   by digitizing a portion of the bandwidth received from the lectric field
+   sensor antennas and deriving spectral and waveform vector information from
+   the waveforms using digital signal processing techniques.
+ 
+   The wideband receiver will obtain very high-resolution electric or magnetic
+   field waveforms for selected time intervals that vary from under a minute
+   to as much as an hour or more. The receiver has two selectable passbands:
+   50 Hz to approximately 10 kHz and 10 kHz to approximately 80 kHz. The
+   wideband receiver uses high-rate telemetry to transfer waveform information
+   in a given bandwidth from a selected sensor directly. The input signal is
+   selectable from one of five inputs: two electric, one magnetic, a
+   frequency-converted output from the high-frequency receiver, and the
+   Langmuir probe.
+ 
+   The medium-frequency receiver provides spectrum measurements over the
+   frequency range from 25 Hz to 12.6 kHz. This receiver is attached to one of
+   four sensor inputs (two electric and two magnetic) and uses double
+   frequency conversion to convert the input bandwidth down to a low-frequency
+   constant frequency band, where it is detected by an amplitude detector.
+ 
+   The low-frequency five-channel waveform receiver provides high-resolution
+   spectral measurements of electric and magnetic fields over the frequency
+   range from 0.1 Hz to 2.5 kHz. It provides simultaneous waveforms from all
+   five antennas (three magnetic axes and two electric axes). This receiver
+   captures blocks of waveform data simultaneously from the five sensors and
+   maintains a high-degree of phase and amplitude accuracy. The data is
+   processed through five parallel amplifier and filter channels.
+ 
+   The Langmuir probe bias circuitry...??(more to follow)
+ 
+   The power converter converts d.c. power from the spacecraft power supplies
+   to a.c. power to operate the instrument. The conversion frequency will be
+   fixed at 100 kHz by locking onto a signal from the spacecraft bus interface
+   unit.
+ 
+ 
+RPWS Field of View Parameters
+----------------------------------------------------------
+ 
+   The field of view parameters for the two detectors that constitute the RPWS
+   instrument are:
+ 
+            --   Radio and Plasma Wave Science (RPWS)
+ 
+            --   RPWS Langmuir Probe (RPWS_LP)
+ 
+ 
+Radio and Plasma Wave Science (RPWS) FOV Definition
+ 
+   Since the RPWS detector's FOV is circular and it's diameter is 180.0
+   degrees. Looking down the X-axis in the CASSINI_RPWS frame, we have: (Note
+   since the FOV is 180 degrees in diameter we have the whole Z>=0 halfplane
+   in the FOV.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  ^
+                                  |
+                                  |
+                                  |      o
+                                  |  90.0
+                                  |
+                                  x--------------->
+                                X                Z
+                                 ins              ins
+ 
+ 
+ 
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Now from here we see that one 'boundary corner' vector is a vector along
+   the Y-axis:
+ 
+           Boundary Corner Vector = ( 0, 1, 0 )
+ 
+   Utilizing the ANGLES FOV specification:
+ 
+           \begindata
+ 
+           INS-82730_FOV_FRAME                 = 'CASSINI_RPWS'
+           INS-82730_FOV_SHAPE                 = 'CIRCLE'
+           INS-82730_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82730_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82730_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000  +0.0000000000000000
+ 
+                                                 )
+           INS-82730_FOV_REF_ANGLE             = ( 90.0 )
+           INS-82730_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+RPWS Langmuir Probe (RPWS_LP) FOV Definition
+ 
+   Since the RPWS_LP detector's FOV is also circular and it's diameter is
+   180.0 degrees. Looking down the X-axis in the CASSINI_RPWS_LP frame, we
+   have: (Note since the FOV is 180 degrees in diameter we have the whole Z>=0
+   halfplane in the FOV.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  ^
+                                  |
+                                  |
+                                  |      o
+                                  |  90.0
+                                  |
+                                  x--------------->
+                                X                Z
+                                 ins              ins
+ 
+ 
+ 
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Now from here we see that one 'boundary corner' vector is a vector along
+   the Y-axis:
+ 
+           Boundary Corner Vector = ( 0, 1, 0 )
+ 
+   Utilizing the ANGLES FOV specification:
+ 
+           \begindata
+ 
+           INS-82731_FOV_FRAME                 = 'CASSINI_RPWS_LP'
+           INS-82731_FOV_SHAPE                 = 'CIRCLE'
+           INS-82731_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82731_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82731_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000  +0.0000000000000000
+ 
+                                                 )
+           INS-82731_FOV_REF_ANGLE             = ( 90.0 )
+           INS-82731_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+RPWS Pixel Parameters:
+----------------------------------------------------------
+ 
+   These parameters describe the pixel structure associated with the
+   instruments and their fields of views. In some cases this is a
+   generalization of the notion of pixel, in that instead of representing
+   pixels on a CCD they may represent a collection of individual detectors.
+ 
+   Radio and Plasma Wave Science (RPWS):
+ 
+           \begindata
+ 
+           INS-82730_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82730_PIXEL_SAMPLES         = ( 1 )
+           INS-82730_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+   RPWS Langmuir Probe (RPWS_LP):
+ 
+           \begindata
+ 
+           INS-82731_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82731_PIXEL_SAMPLES         = ( 1 )
+           INS-82731_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+ 
+Instrument Mode Timing
+----------------------------------------------------------
+ 
+   The following values were provided as samples in [5]. These values are
+   defined in [5] as follows:
+ 
+ 
+           ``The initial values for the following keywords are given
+           per instrument number:
+ 
+           INS[instrument number]_[instrument acronym]_MODE_NAME
+           INS[instrument number]_[instrument acronym]_TRIGGER_OFFSET
+           INS[instrument number]_[instrument acronym]_CYCLE_DURATION
+ 
+           INS..._MODE_NAME contains the name of the instrument mode for
+           the INS..._TRIGGER_OFFSET and INS..._CYCLE_DURATION
+           keywords.
+ 
+           INS..._TRIGGER_OFFSET specifies the reference time of the
+           first instrument frame (to be calculated for a footprint)
+           relative to the time of transacting the corresponding TRIGGER
+           command. The units are SFOC duration.
+ 
+           INS..._CYCLE_DURATION specifies the duration between successive
+           instrument frames (from the first one) for the INS..._MODE_NAME.''
+ 
+ 
+ 
+Radio and Plasma Wave Science (RPWS):
+ 
+           \begindata
+ 
+           INS-82730_MODE_NAME             = 'NOMINAL'
+           INS-82730_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82730_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+RPWS Langmuir Probe (RPWS_LP):
+ 
+           \begindata
+ 
+           INS-82731_MODE_NAME             = 'NOMINAL'
+           INS-82731_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82731_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+NAIF ID Code to Name Mapping
+----------------------------------------------------------
+ 
+           \begindata
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_RPWS' )
+           NAIF_BODY_CODE                 += ( -82730 )
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_RPWS_LP' )
+           NAIF_BODY_CODE                 += ( -82731 )
+ 
+           \begintext
+ 
+ 
+Platform ID
+----------------------------------------------------------
+ 
+   The RPWS instrument is mounted on the the Cassini Spacecraft body.
+   Therefore the values stored in the keywords below are -82000.
+ 
+           \begindata
+ 
+           INS-82730_PLATFORM_ID           = ( -82000 )
+           INS-82731_PLATFORM_ID           = ( -82000 )
+ 
+           \begintext
+ 

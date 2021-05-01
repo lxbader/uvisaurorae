@@ -1,11 +1,14 @@
 import bz2
 import datetime as dt
+import logging
 import re
 import uuid
 
 import importlib_resources
 import numpy as np
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 class DataRetrievalError(Exception):
@@ -14,9 +17,9 @@ class DataRetrievalError(Exception):
 
 
 def list_all_spice_kernels():
-    kernel_list = importlib_resources.files(
-        "uvis_auroral_projections.resources"
-    ).joinpath("spice_cassini_standard_kernels.txt")
+    kernel_list = importlib_resources.files("uvisaurorae.resources").joinpath(
+        "spice_cassini_standard_kernels.txt"
+    )
     all_kernels = np.genfromtxt(kernel_list, dtype=str)
 
     static_kernels = []
@@ -64,21 +67,24 @@ def download_spice_kernels(kernels, save_dir, overwrite=False):
     for kernel in kernels:
         save_file = save_dir / kernel
         if save_file.is_file() and not overwrite:
+            logger.debug(f"Found existing SPICE kernel {str(kernel)}")
             continue
         if not save_file.parent.exists():
             save_file.parent.mkdir(parents=True)
 
+        logger.info(f"Downloading SPICE kernel {str(kernel)}")
         data = requests.get(naif_root + "/" + kernel)
         if not data.status_code == 200:
             raise DataRetrievalError(f"Download of kernel {kernel} failed.")
 
         with open(save_file, "wb") as f:
             f.write(data.content)
+        logger.info(f"Successfully downloaded SPICE kernel {str(kernel)}")
     return
 
 
 def make_metakernel(kernel_dir, kernels=None):
-    metakernel_file = kernel_dir / (uuid.uuid4().hex + ".mk")
+    metakernel_file = kernel_dir / (uuid.uuid4().hex + ".tm")
     if kernels:
         kernels = [kernel_dir / k for k in kernels]
     else:
@@ -86,11 +92,13 @@ def make_metakernel(kernel_dir, kernels=None):
     with open(metakernel_file, "w") as f:
         f.write("KPL/MK\n")
         f.write("\\begindata\n")
+        f.write("PATH_VALUES=('" + str(kernel_dir) + "',)\n")
+        f.write("PATH_SYMBOLS=('A',)\n")
         f.write("KERNELS_TO_LOAD=(\n")
         for k in kernels:
-            if ".mk" in str(k):
+            if ".tm" in str(k):
                 continue
-            f.write("'" + str(k) + "',\n")
+            f.write("'$A/" + str(k.relative_to(kernel_dir)) + "',\n")
         f.write(")\n")
         f.write("\\begintext\n")
     return metakernel_file
@@ -117,19 +125,23 @@ def download_uvis_data(
             save_file = save_file.parent / (save_file.name + ".bz2")
 
         if save_file.is_file() and not overwrite:
+            logger.debug(f"Found existing UVIS file {this_file}")
             continue
         if not save_file.parent.exists():
             save_file.parent.mkdir(parents=True)
 
+        logger.info(f"Downloading UVIS file {this_file}")
         data = requests.get(full_link + "/" + this_file)
         if not data.status_code == 200:
             raise DataRetrievalError(f"Download of UVIS file {this_file} failed")
         if compress and suffix == ".DAT":
+            logger.info(f"Compressing UVIS file {this_file}")
             with bz2.open(save_file, "wb") as f:
                 f.write(data.content)
         else:
             with open(save_file, "wb") as f:
                 f.write(data.content)
+        logger.info(f"Successfully downloaded UVIS file {this_file}")
     return save_file
 
 

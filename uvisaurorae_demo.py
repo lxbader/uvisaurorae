@@ -6,6 +6,8 @@ from uvisaurorae.executions import execute_projection_command
 
 if __name__ == "__main__":
 
+    logging.basicConfig(filename=str(Path.cwd() / 'example.log'), level=logging.INFO)
+
     uvis_dir = Path("D:/uvis_projection_test/uvis_data")
     spice_dir = Path("D:/uvis_projection_test/spice_data")
     projection_dir = Path("D:/uvis_projection_test/projections")
@@ -18,7 +20,7 @@ if __name__ == "__main__":
         projection_dir=projection_dir,
         creator="LXBADER",
     )
-    #
+
     # execute_projection_command(
     #     dict(
     #         **cmd_base,
@@ -70,6 +72,17 @@ if __name__ == "__main__":
             release_number=47,
             sensitivity=1,
             projection_mode="split",
-            only_idx=[21], # , 22, 23],
+            only_idx=[21],  # , 22, 23],
         )
     )
+
+    # execute_projection_command(
+    #     dict(
+    #         **cmd_base,
+    #         uvis_file_names=["FUV2016_278_09_22"],
+    #         release_number=57,
+    #         sensitivity=1,
+    #         projection_mode="combine",
+    #         clean=True,
+    #     )
+    # )

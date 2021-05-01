@@ -4,9 +4,7 @@ from numpy.testing import assert_almost_equal
 
 from uvisaurorae.inout import load_integrated_data
 
-test_data_dir = importlib_resources.files("uvis_auroral_projections").joinpath(
-    "tests/data/inout"
-)
+test_data_dir = importlib_resources.files("uvisaurorae").joinpath("tests/data/inout")
 
 
 def test_data_input_compressed():

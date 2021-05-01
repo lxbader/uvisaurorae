@@ -1,0 +1,406 @@
+KPL/IK
+
+\beginlabel
+PDS_VERSION_ID               = PDS3
+RECORD_TYPE                  = STREAM
+RECORD_BYTES                 = "N/A"
+^SPICE_KERNEL                = "cas_cda_v01.ti"
+MISSION_NAME                 = "CASSINI-HUYGENS"
+SPACECRAFT_NAME              = "CASSINI ORBITER"
+DATA_SET_ID                  = "CO-S/J/E/V-SPICE-6-V1.0"
+KERNEL_TYPE_ID               = IK
+PRODUCT_ID                   = "cas_cda_v01.ti"
+PRODUCT_CREATION_TIME        = 2005-06-22T17:11:53
+PRODUCER_ID                  = "NAIF/JPL"
+MISSION_PHASE_NAME           = "N/A"
+PRODUCT_VERSION_TYPE         = ACTUAL
+PLATFORM_OR_MOUNTING_NAME    = "CASSINI SPACECRAFT"
+START_TIME                   = "N/A"
+STOP_TIME                    = "N/A"
+SPACECRAFT_CLOCK_START_COUNT = "N/A"
+SPACECRAFT_CLOCK_STOP_COUNT  = "N/A"
+TARGET_NAME                  = "N/A"
+INSTRUMENT_NAME              = "COSMIC DUST ANALYZER"
+NAIF_INSTRUMENT_ID           = -82790
+SOURCE_PRODUCT_ID            = "N/A"
+NOTE                         = "See comments in the file for details"
+OBJECT                       = SPICE_KERNEL
+  INTERCHANGE_FORMAT         = ASCII
+  KERNEL_TYPE                = INSTRUMENT
+  DESCRIPTION                = "This file contains parameters for the
+mounting alignment, internal and FOV geometry for the Cassini Cosmic Dust
+Analyzer (CDA) instruments. "
+END_OBJECT                   = SPICE_KERNEL
+\endlabel
+
+
+CDA Instrument Kernel
+==============================================================================
+ 
+   This instrument kernel (I-kernel) contains references to the mounting
+   alignment, internal and FOV geometry for the Cassini Cosmic Dust Analyzer
+   (CDA) instruments.
+ 
+ 
+Version and Date
+----------------------------------------------------------
+ 
+   The TEXT_KERNEL_ID stores version information of loaded project text
+   kernels. Each entry associated with the keyword is a string that consists
+   of four parts: the kernel name, version, entry date, and type. For example,
+   the ISS I-kernel might have an entry as follows:
+ 
+           TEXT_KERNEL_ID += 'CASSINI_ISS V0.0.0 29-SEPTEMBER-1999 IK'
+                                  |          |         |            |
+                                  |          |         |            |
+              KERNEL NAME <-------+          |         |            |
+                                             |         |            V
+                             VERSION <-------+         |       KERNEL TYPE
+                                                       |
+                                                       V
+                                                  ENTRY DATE
+ 
+   CDA I-Kernel Version:
+ 
+           \begindata
+ 
+           TEXT_KERNEL_ID += 'CASSINI_CDA V0.1.0 23-APRIL-2001 IK'
+ 
+           \begintext
+ 
+   Version 0.1 -- April 23, 2001 -- Scott Turner
+ 
+            --   Updated kernel to utilize new FOV ANGLES specification.
+ 
+   Version 0.0 -- September 26, 2000 -- Scott Turner
+ 
+            --   Initial Prototype Release for Review.
+ 
+ 
+References
+----------------------------------------------------------
+ 
+            1.   ``Cassini Science Instruments and Investigations'', Revised
+                 Second Printing. Stephen J. Edberg.
+ 
+            2.   ``Kernel Pool Required Reading''
+ 
+            3.   JPL Cassini Project Web Page describing the instruments.
+ 
+            4.   Cassini/NAIF SPICE Workship, November 8-9, 1999.
+ 
+            5.   Email from Jeff Boyer regarding necessary data for footprint
+                 calculations.
+ 
+            6.   Cassini Spacecraft Frames Definition Kernel
+ 
+            7.   CASPER CDA I-kernel Version 5.0
+ 
+ 
+Contact Information
+----------------------------------------------------------
+ 
+   Direct questions, comments or concerns about the contents of this kernel
+   to:
+ 
+           Scott Turner, NAIF/JPL, (818)-345-3157, sturner@spice.jpl.nasa.gov
+ 
+ 
+Implementation Notes
+----------------------------------------------------------
+ 
+   This file is used by the SPICE system as follows: programs that make use of
+   this instrument kernel must ``load'' the kernel, normally during program
+   initialization. Loading the kernel associates data items with their names
+   in a data structure called the ``kernel pool''. The SPICELIB routine FURNSH
+   and CSPICE routine furnsh_c load SPICE kernels as shown below:
+ 
+   FORTRAN (SPICELIB)
+ 
+           CALL FURNSH ( 'kernel_name' )
+ 
+   C (CSPICE)
+ 
+           furnsh_c ( "kernel_name" )
+ 
+   In order for a program or subroutine to extract data from the pool, the
+   SPICELIB routines GDPOOL and GIPOOL are used. See [2] for details.
+ 
+   This file was created and may be updated with a text editor or word
+   processor.
+ 
+ 
+Naming Conventions
+----------------------------------------------------------
+ 
+   All names referencing values in this I-kernel start with the characters
+   `INS' followed by the NAIF Cassini spacecraft ID number (-82) followed by a
+   NAIF three digit code for the CDA detector. (790).
+ 
+   The remainder of the name is an underscore character followed by the unique
+   name of the data item. For example, the CDA boresight direction in the CDA
+   frame (``CASSINI_CDA'' -- see [6] ) is specified by:
+ 
+           INS-82790_BORESIGHT
+ 
+   The upper bound on the length of the name of any data item is 32
+   characters.
+ 
+   If the same item is included in more than one file, or if the same item
+   appears more than once within a single file, the latest value supersedes
+   any earlier values.
+ 
+ 
+CDA description
+----------------------------------------------------------
+ 
+   From [3]:
+ 
+   The Cosmic Dust Analyzer Subsystem (CDA) will provide direct observations
+   of dust and ice particles in interplanetary space and in the Jupiter and
+   Saturn systems. It will investigate the physical, chemical, and dynamical
+   properties of these particles matter as functions of the distances to the
+   Sun, to Jupiter, to Saturn, and to Saturn's satellites and rings. Finally,
+   it will study the interaction of the particles with the Saturnian rings,
+   satellites, and magnetosphere.
+ 
+   The four major functional elements of the CDA are the dust analyzer, the
+   main electronics, the articulation mechanism, and the high-rate detector
+   assembly. For information on these components, see below.
+ 
+   (CDA)
+ 
+   The dust analyzer (DA) consists of the following components: four charge
+   pick-up grids; a hemispherical target, an ion collector, an electron
+   multiplier, and the sensor electronics. For information on these
+   components, see below.
+ 
+   (DA)
+ 
+   The charge pick-up grids collect the initial impact particles. They are
+   mounted at the entrance of the sensor.
+ 
+   The hemispherical target is divided into two parts -- a ring-shaped impact
+   ionization target and a chemical analyzer target in the middle of the
+   ionization target. The chemical analyzer target has an acceleration grid
+   mounted 3 mm in front of it.
+ 
+   The ion collector has a grid that is negatively biased in order to collect
+   the positively charged plasma ions produced at the impact ionization
+   target.
+ 
+   The electron multiplier is located in the center of the hemispherical ion
+   collector target. It amplifies the signal produced by ions capable of
+   penetrating the ion collector grid. These ions originate from plasma
+   produced by particle impact either on the impact ionization target or the
+   chemical analyzer target. The output signal from the multiplier differs
+   depending upon the target from which impacts are being measured.
+ 
+   The sensor electronics are contained in an electronics box attached to the
+   DA sensor chassis. Among other components, this box contains
+   charge-sensitive amplifiers (CSAs) that measure the signals from all of the
+   grids in the DA.
+ 
+   The CDA main electronics include amplifiers and transient recorders, a
+   control and timing unit, a microprocessor unit, a bus interface unit, a
+   power input circuit, a low-voltage converter, and a housekeeping system.
+ 
+   All CSA and electron multiplier signals are separately amplified by
+   logarithmic amplifiers and then digitized by an analog-to-digital
+   converter. The data are stored on transient recorders. Only the recorder
+   connected to the pick-up grids is operated continuously. All others are
+   activated only by a signal detected at a target or the acceleration grid.
+   The control and timing unit stores and decodes information received from
+   the microprocessor and produces all timing and synchronization signals
+   required for instrument operation.
+ 
+   The microprocessor samples and collects the buffered measurement data,
+   coordinates the subsystem measurement cycle, controls the instrument
+   operating modes, processes the data according to a program loaded in its
+   memory, and outputs data to the spacecraft upon request through the bus
+   interface unit (BIU). The BIU is the interface circuit between the
+   spacecraft and the microprocessor and is powered by the CDA instrument. The
+   power input circuit is the interface with the spacecraft Power and
+   Pyrotechnics Subsystem (PPS) and contains a filter circuit and a regulator
+   to produce a d.c. voltage to feed the low-voltage converter.
+ 
+   The low-voltage converter is a d.c./d.c. converter that provides different
+   regulated low voltages for the electronics circuits and the supply voltage
+   for the high-voltage converters. The converters are synchronized to the
+   100-kHz clock provided through the BIU from the Command and Data Subsystem
+   (CDS).
+ 
+   The CDA housekeeping system is a data system that multiplexes, digitizes,
+   and stores information on the instrument current, the low voltages, the
+   high voltages, and temperature measurements.
+ 
+   The articulation mechanism (AM) allows the entire CDA instrument, including
+   the high-rate detectors, the dust analyzer, the main electronics, and the
+   articulation mechanism electronics, to be rotated or repositioned with
+   respect to the spacecraft coordinate system.
+ 
+   The high-rate detectors (HRDs) are two redundant independent sensors. The
+   electronics for the sensors are contained in the HRD electronics box, and
+   each sensor has its own electronics, independent of the other sensor. The
+   HRD will be operated in two modes: "normal" mode and "calibrate." In the
+   normal mode, the operational HRD continuously collects dust particle data.
+   In the calibrate mode, a calibration cycle is initiated, which consists of
+   a sequence of pulses sent to the HRD by the in-flight calibrator (IFC) to
+   verify the stability of the electronics.
+ 
+ 
+CDA Field of View Parameters
+----------------------------------------------------------
+ 
+   From [7] we have:
+ 
+ 
+           Circular FOVs:
+ 
+           ------------  -------------------
+             Detector         Diameter
+           ------------  -------------------
+               CDA           90.0 degrees
+           ------------  -------------------
+ 
+   The keywords INS[ID]_FOV_FRAME, INS[ID]_FOV_SHAPE, INS[ID]_BORESIGHT, and
+   the FOV ANGLES specification keywords defined below are used to describe
+   the instrument field of view. Since the CDA has a circular field of view
+   the INS[ID]_FOV_SHAPE will be 'CIRCLE' The FOV boresight lies along the
+   Z-axis in the 'CASSINI_CDA' frame.
+ 
+   Since the CDA detector's FOV is circular and it's diameter is 90 degrees,
+   looking down the X-axis in the CASSINI_CDA frame, we have: (Note we are
+   arbitrarily choosing a vector that terminates in the Z=1 plane.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /    o |
+                                  |/  45.0  |
+                                  x--------------->
+                                X  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Now from here we see that the Y component of one 'boundary corner' vector
+   is:
+ 
+           Y Component = 1.0 * tan ( 45.0 degrees )
+                       = 1.0
+ 
+ 
+   Utilizing the ANGLES FOV specification:
+ 
+           \begindata
+ 
+           INS-82790_FOV_FRAME                 = 'CASSINI_CDA'
+           INS-82790_FOV_SHAPE                 = 'CIRCLE'
+           INS-82790_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82790_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82790_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82790_FOV_REF_ANGLE             = ( 45.0 )
+           INS-82790_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+CDA Pixel Parameters:
+----------------------------------------------------------
+ 
+   These parameters describe the pixel structure associated with the
+   instruments and their fields of views. In some cases this is a
+   generalization of the notion of pixel, in that instead of representing
+   pixels on a CCD they may represent a collection of individual detectors.
+ 
+   Cosmic Dust Analyzer (CDA):
+ 
+           \begindata
+ 
+           INS-82790_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82790_PIXEL_SAMPLES         = ( 1 )
+           INS-82790_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+ 
+Instrument Mode Timing
+----------------------------------------------------------
+ 
+   The following values were provided as samples in [5]. These values are
+   defined in [5] as follows:
+ 
+ 
+           ``The initial values for the following keywords are given
+           per instrument number:
+ 
+           INS[instrument number]_[instrument acronym]_MODE_NAME
+           INS[instrument number]_[instrument acronym]_TRIGGER_OFFSET
+           INS[instrument number]_[instrument acronym]_CYCLE_DURATION
+ 
+           INS..._MODE_NAME contains the name of the instrument mode for
+           the INS..._TRIGGER_OFFSET and INS..._CYCLE_DURATION
+           keywords.
+ 
+           INS..._TRIGGER_OFFSET specifies the reference time of the
+           first instrument frame (to be calculated for a footprint)
+           relative to the time of transacting the corresponding TRIGGER
+           command. The units are SFOC duration.
+ 
+           INS..._CYCLE_DURATION specifies the duration between successive
+           instrument frames (from the first one) for the INS..._MODE_NAME.''
+ 
+ 
+           \begindata
+ 
+           INS-82790_MODE_NAME             = 'NOMINAL'
+           INS-82790_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82790_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+NAIF ID Code to Name Mapping
+----------------------------------------------------------
+ 
+   The following keywords define the name for the corresponding ID Code. See
+   [4] for details.
+ 
+           \begindata
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_CDA' )
+           NAIF_BODY_CODE                 += ( -82790 )
+ 
+           \begintext
+ 
+ 
+Platform ID
+----------------------------------------------------------
+ 
+   The CDA instrument is mounted on the Cassini Spacecraft body. Therefore the
+   value in the keyword below is -82000.
+ 
+           \begindata
+ 
+           INS-82790_PLATFORM_ID           = ( -82000 )
+ 
+           \begintext
+ 

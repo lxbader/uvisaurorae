@@ -1,0 +1,449 @@
+KPL/IK
+
+\beginlabel
+PDS_VERSION_ID               = PDS3
+RECORD_TYPE                  = STREAM
+RECORD_BYTES                 = "N/A"
+^SPICE_KERNEL                = "cas_inms_v02.ti"
+MISSION_NAME                 = "CASSINI-HUYGENS"
+SPACECRAFT_NAME              = "CASSINI ORBITER"
+DATA_SET_ID                  = "CO-S/J/E/V-SPICE-6-V1.0"
+KERNEL_TYPE_ID               = IK
+PRODUCT_ID                   = "cas_inms_v02.ti"
+PRODUCT_CREATION_TIME        = 2005-06-22T17:11:53
+PRODUCER_ID                  = "NAIF/JPL"
+MISSION_PHASE_NAME           = "N/A"
+PRODUCT_VERSION_TYPE         = ACTUAL
+PLATFORM_OR_MOUNTING_NAME    = "FIELDS AND PARTICLES PALETTE"
+START_TIME                   = "N/A"
+STOP_TIME                    = "N/A"
+SPACECRAFT_CLOCK_START_COUNT = "N/A"
+SPACECRAFT_CLOCK_STOP_COUNT  = "N/A"
+TARGET_NAME                  = "N/A"
+INSTRUMENT_NAME              = "ION AND NEUTRAL MASS SPECTROMETER"
+NAIF_INSTRUMENT_ID           = {
+                               -82741,
+                               -82740
+                               }
+SOURCE_PRODUCT_ID            = "N/A"
+NOTE                         = "See comments in the file for details"
+OBJECT                       = SPICE_KERNEL
+  INTERCHANGE_FORMAT         = ASCII
+  KERNEL_TYPE                = INSTRUMENT
+  DESCRIPTION                = "This file contains parameters for the
+mounting alignment, internal and FOV geometry for the Cassini Ion and
+Neutral Mass Spectrometer (INMS) instruments. "
+END_OBJECT                   = SPICE_KERNEL
+\endlabel
+
+
+INMS Instrument Kernel
+==============================================================================
+ 
+   This instrument kernel (I-kernel) contains references to the mounting
+   alignment, internal and FOV geometry for the Cassini Ion and Neutral Mass
+   Spectrometer (INMS) instruments.
+ 
+ 
+Version and Date
+----------------------------------------------------------
+ 
+   The TEXT_KERNEL_ID stores version information of loaded project text
+   kernels. Each entry associated with the keyword is a string that consists
+   of four parts: the kernel name, version, entry date, and type. For example,
+   the ISS I-kernel might have an entry as follows:
+ 
+           TEXT_KERNEL_ID += 'CASSINI_ISS V0.0.0 29-SEPTEMBER-1999 IK'
+                                  |          |         |            |
+                                  |          |         |            |
+              KERNEL NAME <-------+          |         |            |
+                                             |         |            V
+                             VERSION <-------+         |       KERNEL TYPE
+                                                       |
+                                                       V
+                                                  ENTRY DATE
+ 
+   INMS I-Kernel Version:
+ 
+           \begindata
+ 
+           TEXT_KERNEL_ID += 'CASSINI_INMS V0.2.0 23-APRIL-2001 IK'
+ 
+           \begintext
+ 
+   Version 0.2 -- April 23, 2001 -- Scott Turner
+ 
+            --   Updated kernel to utilize new FOV ANGLES specification.
+ 
+   Version 0.1 -- November 16, 2000 -- Scott Turner
+ 
+            --   Changed the CASSINI_INMS_OPEN FOV defintion to reflect the
+                 correct size.
+ 
+   Version 0.0 -- September 27, 2000 -- Scott Turner
+ 
+            --   Initial Prototype Release for Review.
+ 
+ 
+References
+----------------------------------------------------------
+ 
+            1.   ``Cassini Science Instruments and Investigations'', Revised
+                 Second Printing. Stephen J. Edberg.
+ 
+            2.   ``Kernel Pool Required Reading''
+ 
+            3.   JPL Cassini Project Web Page describing the instruments.
+ 
+            4.   Cassini/NAIF SPICE Workship, November 8-9, 1999.
+ 
+            5.   Email from Jeff Boyer regarding necessary data for footprint
+                 calculations.
+ 
+            6.   Cassini Spacecraft Frames Definition Kernel
+ 
+            7.   CASPER INMS I-kernel Version 5.0
+ 
+            8.   Email from Deborah Bass regarding incorrect CASSINI_INMS_OPEN
+                 FOV size.
+ 
+ 
+Contact Information
+----------------------------------------------------------
+ 
+   Direct questions, comments or concerns about the contents of this kernel
+   to:
+ 
+           Scott Turner, NAIF/JPL, (818)-345-3157, sturner@spice.jpl.nasa.gov
+ 
+ 
+Implementation Notes
+----------------------------------------------------------
+ 
+   This file is used by the SPICE system as follows: programs that make use of
+   this instrument kernel must ``load'' the kernel, normally during program
+   initialization. Loading the kernel associates data items with their names
+   in a data structure called the ``kernel pool''. The SPICELIB routine FURNSH
+   and CSPICE routine furnsh_c load SPICE kernels as shown below:
+ 
+   FORTRAN (SPICELIB)
+ 
+           CALL FURNSH ( 'kernel_name' )
+ 
+   C (CSPICE)
+ 
+           furnsh_c ( "kernel_name" )
+ 
+   In order for a program or subroutine to extract data from the pool, the
+   SPICELIB routines GDPOOL and GIPOOL are used. See [2] for details.
+ 
+   This file was created and may be updated with a text editor or word
+   processor.
+ 
+ 
+Naming Conventions
+----------------------------------------------------------
+ 
+   All names referencing values in this I-kernel start with the characters
+   `INS' followed by the NAIF Cassini spacecraft ID number (-82) followed by a
+   NAIF three digit code for the INMS detectors. (OPEN = 740, CLOSED = 741).
+ 
+   The remainder of the name is an underscore character followed by the unique
+   name of the data item. For example, the INMS_OPEN boresight direction in
+   the INMS frame (``CASSINI_INMS'' -- see [6] ) is specified by:
+ 
+           INS-82740_BORESIGHT
+ 
+   The upper bound on the length of the name of any data item is 32
+   characters.
+ 
+   If the same item is included in more than one file, or if the same item
+   appears more than once within a single file, the latest value supersedes
+   any earlier values.
+ 
+ 
+INMS description
+----------------------------------------------------------
+ 
+   From [3]:
+ 
+   The Ion and Neutral Mass Spectrometer Subsystem (INMS) will be used to
+   study the neutral gases and positive ions in the atmospheres of Saturn and
+   Titan and gases in the vicinities of the Saturnian rings and the icy
+   satellites. It will also study the magnetosphere of Saturn.
+ 
+   The major functional components of the INMS Subsystem are an open ion
+   source, a closed ion source, a quadrupole deflector and lens system, a
+   quadrupole mass analyzer, and a dual detector system. For information on
+   these components, see below.
+ 
+   (INMS Links)
+ 
+   The open ion source produces ions by ionizing neutral gases. It includes an
+   ion trap/deflector that forms trapped ions into a beam. This minimizes
+   interaction effects between the gas environment and the open source surface
+   as the source directly samples the gaseous species.
+ 
+   The closed ion source also produces ions by ionizing neutral gases. It uses
+   ram density enhancement to provide measurements of higher accuracy and
+   sensitivity for the more inert atomic and molecular species than provided
+   by the open ion source. This is achieved by maintaining a high input flux
+   to an enclosed antechamber and then limiting the gas conductance or output
+   from the antechamber by the use of an orifice.
+ 
+   Ions are directed to the mass analyzer from the selected ion source by
+   changing the potentials on a 90-degree quadrupole deflector. This
+   electrostatic device allows both sources of ions to be sequentially
+   switched into a common exit lens system.
+ 
+   The quadrupole mass analyzer consists of four precision ground hyperbolic
+   rods mounted in a rigid mechanical assembly. The transmitted mass, the
+   resolution, and the ion transmission are controlled by variations in RF and
+   d.c. electric fields between adjacent rod pairs, while opposite rod pairs
+   are kept at the same potential.
+ 
+   The ion dual detector system amplifies and detects the input from the mass
+   analyzer by the use of two continuous dynode multipliers.
+ 
+ 
+INMS Field of View Parameters
+----------------------------------------------------------
+ 
+   The field of view parameters for the two detectors that constitute INMS
+   are:
+ 
+            --   Open (OPEN)
+ 
+            --   Closed (CLOSED)
+ 
+ 
+           Circular FOVs:
+ 
+           ------------  -------------------
+             Detector         Diameter
+           ------------  -------------------
+               OPEN           8.0 degrees
+              CLOSED        180.0 degrees
+           ------------  -------------------
+ 
+   The keywords INS[ID]_FOV_FRAME, INS[ID]_FOV_SHAPE, INS[ID]_BORESIGHT, and
+   the FOV ANGLES specification keywords defined below are used to describe
+   the instrument fields of view. Since the INMS has only circular fields of
+   view the INS[ID]_FOV_SHAPE will always be 'CIRCLE', and GETFOV will always
+   return a single boundary corner vector that lies along the edge of the
+   circular cones. The FOV boresight lies along the Z-axis in the
+   'CASSINI_INMS' frame for both detectors.
+ 
+ 
+Open (OPEN) FOV Definition
+ 
+   Since the INMS_OPEN detector's FOV is circular and it's diameter is 8.0
+   degrees, looking down the X-axis in the CASSINI_INMS frame, we have: (Note
+   we are arbitrarily choosing a vector that terminates in the Z=1 plane.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /    o |
+                                  |/   4.0  |
+                                  x--------------->
+                                X  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Now from here we see that the Y component of one 'boundary corner' vector
+   is:
+ 
+           Y Component = 1.0 * tan ( 4.0 degrees )
+                       = 0.069926812
+ 
+   Utilizing the ANGLES FOV specification:
+ 
+           \begindata
+           INS-82740_FOV_FRAME                 = 'CASSINI_INMS'
+           INS-82740_FOV_SHAPE                 = 'CIRCLE'
+           INS-82740_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82740_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82740_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82740_FOV_REF_ANGLE             = ( 4.0 )
+           INS-82740_FOV_ANGLE_UNITS           = 'DEGREES'
+           \begintext
+ 
+ 
+Closed (CLOSED) FOV Definition
+ 
+   Since the INMS_CLOSED detector's FOV is also circular and it's diameter is
+   180.0 degrees. Looking down the X-axis in the CASSINI_INMS frame, we have:
+   (Note since the FOV is 180 degrees in diameter we have the whole Z>=0
+   halfplane in the FOV.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  ^
+                                  |
+                                  |
+                                  |      o
+                                  |  90.0
+                                  |
+                                  x--------------->
+                                X                Z
+                                 ins              ins
+ 
+ 
+ 
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Utilizing the ANGLES FOV specification:
+ 
+           Boundary Corner Vector = ( 0, 1, 0 )
+ 
+           \begindata
+ 
+           INS-82741_FOV_FRAME                 = 'CASSINI_INMS'
+           INS-82741_FOV_SHAPE                 = 'CIRCLE'
+           INS-82741_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82741_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82741_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000  +0.0000000000000000
+ 
+                                                 )
+           INS-82741_FOV_REF_ANGLE             = ( 90.0 )
+           INS-82741_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+INMS Pixel Parameters:
+----------------------------------------------------------
+ 
+   These parameters describe the pixel structure associated with the
+   instruments and their fields of views. In some cases this is a
+   generalization of the notion of pixel, in that instead of representing
+   pixels on a CCD they may represent a collection of individual detectors.
+ 
+   Ion and Neutral Mass Spectrometer Open (INMS_OPEN):
+ 
+           \begindata
+ 
+           INS-82740_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82740_PIXEL_SAMPLES         = ( 1 )
+           INS-82740_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+   Ion and Neutral Mass Spectrometer Closed (INMS_CLOSED):
+ 
+           \begindata
+ 
+           INS-82741_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82741_PIXEL_SAMPLES         = ( 1 )
+           INS-82741_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+ 
+Instrument Mode Timing
+----------------------------------------------------------
+ 
+   The following values were provided as samples in [5]. These values are
+   defined in [5] as follows:
+ 
+ 
+           ``The initial values for the following keywords are given
+           per instrument number:
+ 
+           INS[instrument number]_[instrument acronym]_MODE_NAME
+           INS[instrument number]_[instrument acronym]_TRIGGER_OFFSET
+           INS[instrument number]_[instrument acronym]_CYCLE_DURATION
+ 
+           INS..._MODE_NAME contains the name of the instrument mode for
+           the INS..._TRIGGER_OFFSET and INS..._CYCLE_DURATION
+           keywords.
+ 
+           INS..._TRIGGER_OFFSET specifies the reference time of the
+           first instrument frame (to be calculated for a footprint)
+           relative to the time of transacting the corresponding TRIGGER
+           command. The units are SFOC duration.
+ 
+           INS..._CYCLE_DURATION specifies the duration between successive
+           instrument frames (from the first one) for the INS..._MODE_NAME.''
+ 
+ 
+ 
+Open
+ 
+           \begindata
+ 
+           INS-82740_MODE_NAME             = 'MASS_RANGE'
+           INS-82740_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82740_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+Closed
+ 
+           \begindata
+ 
+           INS-82741_MODE_NAME             = 'MASS_RANGE'
+           INS-82741_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82741_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+NAIF ID Code to Name Mapping
+----------------------------------------------------------
+ 
+           \begindata
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_INMS_OPEN' )
+           NAIF_BODY_CODE                 += ( -82740 )
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_INMS_CLOSED' )
+           NAIF_BODY_CODE                 += ( -82741 )
+ 
+           \begintext
+ 
+ 
+Platform ID
+----------------------------------------------------------
+ 
+   The INMS instrument is mounted on the Fields and Particles Palette, which
+   is connected to the Cassini Spacecraft body. Therefore the values stored in
+   the keywords below are -82000.
+ 
+           \begindata
+ 
+           INS-82740_PLATFORM_ID           = ( -82000 )
+           INS-82741_PLATFORM_ID           = ( -82000 )
+ 
+           \begintext
+ 

@@ -1,0 +1,689 @@
+KPL/IK
+
+\beginlabel
+PDS_VERSION_ID               = PDS3
+RECORD_TYPE                  = STREAM
+RECORD_BYTES                 = "N/A"
+^SPICE_KERNEL                = "cas_mimi_v11.ti"
+MISSION_NAME                 = "CASSINI-HUYGENS"
+SPACECRAFT_NAME              = "CASSINI ORBITER"
+DATA_SET_ID                  = "CO-S/J/E/V-SPICE-6-V1.0"
+KERNEL_TYPE_ID               = IK
+PRODUCT_ID                   = "cas_mimi_v11.ti"
+PRODUCT_CREATION_TIME        = 2005-06-22T17:11:54
+PRODUCER_ID                  = "NAIF/JPL"
+MISSION_PHASE_NAME           = "N/A"
+PRODUCT_VERSION_TYPE         = ACTUAL
+PLATFORM_OR_MOUNTING_NAME    = "REMOTE SENSING PALETTE"
+START_TIME                   = "N/A"
+STOP_TIME                    = "N/A"
+SPACECRAFT_CLOCK_START_COUNT = "N/A"
+SPACECRAFT_CLOCK_STOP_COUNT  = "N/A"
+TARGET_NAME                  = "N/A"
+INSTRUMENT_NAME              = "MAGNETOSPHERIC IMAGING INSTRUMENT"
+NAIF_INSTRUMENT_ID           = {
+                               -82763,
+                               -82762,
+                               -82761,
+                               -82760
+                               }
+SOURCE_PRODUCT_ID            = "N/A"
+NOTE                         = "See comments in the file for details"
+OBJECT                       = SPICE_KERNEL
+  INTERCHANGE_FORMAT         = ASCII
+  KERNEL_TYPE                = INSTRUMENT
+  DESCRIPTION                = "This file contains parameters for the
+mounting alignment, internal and FOV geometry for the Cassini Magnetospheric
+Imaging Instrument (MIMI). "
+END_OBJECT                   = SPICE_KERNEL
+\endlabel
+
+
+MIMI Instrument Kernel
+==============================================================================
+ 
+   This instrument kernel (I-kernel) contains references to the mounting
+   alignment, internal and FOV geometry for the Cassini Magnetospheric Imaging
+   Instrument (MIMI).
+ 
+ 
+Version and Date
+----------------------------------------------------------
+ 
+   The TEXT_KERNEL_ID stores version information of loaded project text
+   kernels. Each entry associated with the keyword is a string that consists
+   of four parts: the kernel name, version, entry date, and type. For example,
+   the ISS I-kernel might have an entry as follows:
+ 
+           TEXT_KERNEL_ID += 'CASSINI_ISS V0.0.0 29-SEPTEMBER-1999 IK'
+                                  |          |         |            |
+                                  |          |         |            |
+              KERNEL NAME <-------+          |         |            |
+                                             |         |            V
+                             VERSION <-------+         |       KERNEL TYPE
+                                                       |
+                                                       V
+                                                  ENTRY DATE
+ 
+   MIMI I-Kernel Version:
+ 
+           \begindata
+ 
+           TEXT_KERNEL_ID += 'CASSINI_MIMI V1.1.0 17-NOVEMBER-2000 IK'
+ 
+           \begintext
+ 
+   Version 1.1 -- April 23, 2001 -- Scott Turner
+ 
+            --   Updated kernel to utilize new FOV ANGLES specification.
+ 
+   Version 1.0 -- November 17, 2000 -- Scott Turner
+ 
+            --   This kernel has been approved for usage by the MIMI
+                 instrument team.
+ 
+   Version 0.0 -- October 4, 2000 -- Scott Turner
+ 
+            --   Initial Prototype Release for Review
+ 
+ 
+References
+----------------------------------------------------------
+ 
+            1.   ``Cassini Science Instruments and Investigations'', Revised
+                 Second Printing. Stephen J. Edberg.
+ 
+            2.   ``Kernel Pool Required Reading''
+ 
+            3.   JPL Cassini Project Web Page describing the instruments.
+ 
+            4.   Cassini/NAIF SPICE Workship, November 8-9, 1999.
+ 
+            5.   Email from Jeff Boyer regarding necessary data for footprint
+                 calculations.
+ 
+            6.   Cassini Spacecraft Frames Definition Kernel
+ 
+            7.   CASPER MIMI I-kernel Version 4.0
+ 
+ 
+Contact Information
+----------------------------------------------------------
+ 
+   Direct questions, comments or concerns about the contents of this kernel
+   to:
+ 
+           Scott Turner, NAIF/JPL, (818)-345-3157, sturner@spice.jpl.nasa.gov
+ 
+ 
+Implementation Notes
+----------------------------------------------------------
+ 
+   This file is used by the SPICE system as follows: programs that make use of
+   this instrument kernel must ``load'' the kernel, normally during program
+   initialization. Loading the kernel associates data items with their names
+   in a data structure called the ``kernel pool''. The SPICELIB routine FURNSH
+   and CSPICE routine furnsh_c load SPICE kernels as shown below:
+ 
+   FORTRAN (SPICELIB)
+ 
+           CALL FURNSH ( 'kernel_name' )
+ 
+   C (CSPICE)
+ 
+           furnsh_c ( "kernel_name" )
+ 
+   In order for a program or subroutine to extract data from the pool, the
+   SPICELIB routines GDPOOL and GIPOOL are used. See [2] for details.
+ 
+   This file was created and may be updated with a text editor or word
+   processor.
+ 
+ 
+Naming Conventions
+----------------------------------------------------------
+ 
+   All names referencing values in this I-kernel start with the characters
+   `INS' followed by the NAIF Cassini spacecraft ID number (-82) followed by a
+   NAIF three digit code for the MIMI detectors. (CHEMS = 760, INCA = 761,
+   LEMMS1 = 762 , LEMMS2 = 763 ).
+ 
+   The remainder of the name is an underscore character followed by the unique
+   name of the data item. For example, the MIMI_CHEMS boresight direction in
+   the MIMI_CHEMS frame (``CASSINI_MIMI_CHEMS'' -- see [6] ) is specified by:
+ 
+           INS-82760_BORESIGHT
+ 
+   The upper bound on the length of the name of any data item is 32
+   characters.
+ 
+   If the same item is included in more than one file, or if the same item
+   appears more than once within a single file, the latest value supersedes
+   any earlier values.
+ 
+ 
+MIMI description
+----------------------------------------------------------
+ 
+   From [3]:
+ 
+   The Magnetospheric Imaging Instrument (MIMI) will provide global images of
+   Saturnian hot plasmas remotely and will perform comprehensive direct
+   measurements of hot plasma, including charge state and elemental
+   composition.
+ 
+   The MIMI instrument consists of one set of electronics, the MIMI
+   electronics box, servicing three detector heads that perform the various
+   measurements: the low-energy magnetospheric measurements system (LEMMS),
+   the charge-energy-mass spectrometer (CHEMS), and the ion and neutral camera
+   (INCA). For information on these components, see below.
+ 
+   (MIMI)
+ 
+   The MIMI electronics box contains the data processing unit (DPU) and the
+   digital processing electronics for all three detector heads.
+ 
+   The low-energy magnetospheric measurements system (LEMMS) detector head
+   will measure low- and high-energy proton, ion, and electron angular
+   distributions. The LEMMS head is mounted on a scan platform capable of
+   180-degree rotations. The platform is mounted so that the rotation axis is
+   oriented perpendicular to the spacecraft X axis and so that its
+   extrapolation intersects the spacecraft Z axis.
+ 
+   The charge-energy-mass spectrometer (CHEMS) head will measure the charge
+   state and composition of ions in the most energetically important portion
+   of the Saturnian magnetospheric plasma.
+ 
+   The ion and neutral camera (INCA) will make two different types of
+   measurements. It will obtain with very high sensitivity the
+   three-dimensional distribution, velocities, and rough composition of
+   magnetospheric and interplanetary ions for those regions in which the
+   energetic ion fluxes are very low. The INCA instrument will also obtain
+   remote images of the global distribution of the energetic neutral emission
+   of hot plasmas in the Saturnian magnetosphere, measuring the composition
+   and velocities of those energetic neutrals for each image pixel.
+ 
+ 
+MIMI Field of View Parameters
+----------------------------------------------------------
+ 
+   The field of view parameters for the four detectors that constitute MIMI
+   are:
+ 
+            --   Charge-Energy-Mass Spectrometer (CHEMS)
+ 
+            --   Ion and Neutral Camera (INCA)
+ 
+            --   Low Energy Magnetospheric Measurements System 1 (LEMMS1)
+ 
+            --   Low Energy Magnetospheric Measurements System 2 (LEMMS2)
+ 
+           Circular FOVs:
+ 
+           ------------  -------------------
+             Detector         Diameter
+           ------------  -------------------
+              LEMMS1         15.0 degrees
+ 
+              LEMMS2         30.0 degrees
+           ------------  -------------------
+ 
+           Rectangular FOVs:
+ 
+           ------------  --------------------  --------------------
+             Detector         Horizontal             Vertical
+           ------------  --------------------  --------------------
+              CHEMS          4.80 degrees         159.0 degrees
+ 
+              INCA           90.0 degrees         120.0 degrees
+           ------------  --------------------  --------------------
+ 
+   The keywords INS[ID]_FOV_FRAME, INS[ID]_FOV_SHAPE, INS[ID]_BORESIGHT, and
+   FOV ANGLES specification keywords defined below are used to describe the
+   instrument field of view. Since the LEMMS detectors have a circular field
+   of view and CHEMS and INCA have rectangular ones, the INS[ID]_FOV_SHAPE
+   will either be 'CIRCLE' or 'RECTANGLE'. In the case of the LEMMS, GETFOV
+   returns a single vector that lies along the edge of the circular cone, and
+   for CHEMS and INCA four vectors. All four FOV boresights lie along the
+   Z-axis.
+ 
+ 
+Charge-Energy-Mass Spectrometer (CHEMS) FOV Definition
+ 
+   Since CHEMS has a rectangular field of view, four boundary corner vectors
+   are returned by GETFOV. This requires two separate views to properly
+   visualize. First consider looking down the X-axis in the CASSINI_MIMI_CHEMS
+   frame at the X=0 plane which permits the computation of the Y components of
+   the boundary corner vectors. In the plane the half angle of note is 79.5
+   degrees.
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /    o |
+                                  |/  79.5  |
+                                  x--------------->
+                                X  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+           Y Component = +/- 1.0 * tan ( 79.5 degrees )
+                       = +/- 5.395517174
+ 
+   Since the field of view is rectangular a similar computation yields the X
+   components. This time look up the Y-axis at the Y=0 plane. The half angle
+   of interest is 2.4 degrees.
+ 
+ 
+                                  ^ X
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /    o |
+                                  |/  2.40  |
+                                  o--------------->
+                                Y  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane Y = 0
+ 
+ 
+           X Component = +/- 1.0 * tan ( 2.40 degrees )
+                       = +/- 0.041912418
+ 
+   Utilizing the ANGLES FOV specification:
+ 
+   Charge-Energy-Mass Spectrometer (CHEMS):
+ 
+           \begindata
+ 
+           INS-82760_FOV_FRAME                 = 'CASSINI_MIMI_CHEMS'
+           INS-82760_FOV_SHAPE                 = 'RECTANGLE'
+           INS-82760_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82760_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82760_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82760_FOV_REF_ANGLE             = ( 79.5 )
+           INS-82760_FOV_CROSS_ANGLE           = (  2.4 )
+           INS-82760_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+Ion and Neutral Camera (INCA) FOV Definition
+ 
+   Since INCA has a rectangular field of view, four boundary corner vectors
+   are returned by GETFOV. This requires two separate views to visualize.
+   First consider looking down the X-axis in the CASSINI_MIMI_INCA frame at
+   the X=0 plane which permits the computation of the Y components of the
+   boundary corner vectors. In the plane the half angle of note is 60.0
+   degrees.
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /    o |
+                                  |/  60.0  |
+                                  x--------------->
+                                X  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+           Y Component = +/- 1.0 * tan ( 60.0 degrees )
+                       = +/- 1.732050808
+ 
+   Since the field of view is rectangular a similar computation yields the X
+   components. This time look up the Y-axis at the Y=0 plane. The half angle
+   of interest is 45.0 degrees.
+ 
+ 
+                                  ^ X
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /    o |
+                                  |/  45.0  |
+                                  o--------------->
+                                Y  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane Y = 0
+ 
+ 
+           X Component = +/- 1.0 * tan ( 45.0 degrees )
+                       = +/- 1.0
+ 
+   Again, utilizing the ANGLES FOV specification:
+ 
+   Ion and Neutral Camera (INCA):
+ 
+           \begindata
+ 
+           INS-82761_FOV_FRAME                 = 'CASSINI_MIMI_INCA'
+           INS-82761_FOV_SHAPE                 = 'RECTANGLE'
+           INS-82761_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82761_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82761_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82761_FOV_REF_ANGLE             = ( 60.0 )
+           INS-82761_FOV_CROSS_ANGLE           = ( 45.0 )
+           INS-82761_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+Low Energy Magnetospheric Measurements System 1 (LEMMS1)
+ 
+   Since the MIMI_LEMMS1 detector's FOV is circular and it's diameter is 15.0
+   degrees, looking down the X-axis in the CASSINI_MIMI_LEMMS1 frame, we have:
+   (Note we are arbitrarily choosing a vector that terminates in the Z=1
+   plane.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /    o |
+                                  |/  7.50  |
+                                  x--------------->
+                                X  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Now from here we see that the Y component of one 'boundary corner' vector
+   is:
+ 
+           Y Component = 1.0 * tan ( 7.50 degrees )
+                       = 0.131652498
+ 
+   Utilizing the ANGLES FOV specification:
+ 
+           \begindata
+ 
+           INS-82762_FOV_FRAME                 = 'CASSINI_MIMI_LEMMS1'
+           INS-82762_FOV_SHAPE                 = 'CIRCLE'
+           INS-82762_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82762_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82762_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82762_FOV_REF_ANGLE             = ( 7.5 )
+           INS-82762_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+Low Energy Magnetospheric Measurements System 2 (LEMMS2)
+ 
+   Since the MIMI_LEMMS2 detector's FOV is circular and it's diameter is 30.0
+   degrees, looking down the X-axis in the CASSINI_MIMI_LEMMS2 frame, we have:
+   (Note we are arbitrarily choosing a vector that terminates in the Z=1
+   plane.)
+ 
+ 
+                                  ^ Y
+                                  |  ins
+                                  |
+                                  |        /|
+                                  |      /  |
+                                  |    /    |
+                                  |  /    o |
+                                  |/  15.0  |
+                                  x--------------->
+                                X  \        |    Z
+                                 ins \      |     ins
+                                       \    |
+                                         \  |
+                                           \|
+ 
+                                  |-- 1.0 --|
+                                                Plane X = 0
+ 
+ 
+   Now from here we see that the Y component of one 'boundary corner' vector
+   is:
+ 
+           Y Component = 1.0 * tan ( 15.0 degrees )
+                       = 0.267949192
+ 
+   Again, utilizing the ANGLES FOV specification:
+ 
+           \begindata
+ 
+           INS-82763_FOV_FRAME                 = 'CASSINI_MIMI_LEMMS2'
+           INS-82763_FOV_SHAPE                 = 'CIRCLE'
+           INS-82763_BORESIGHT                 = (
+ 
+                  0.0000000000000000   0.0000000000000000  +1.0000000000000000
+ 
+                                                 )
+           INS-82763_FOV_CLASS_SPEC            = 'ANGLES'
+           INS-82763_FOV_REF_VECTOR            = (
+ 
+                  0.0000000000000000  +1.0000000000000000   0.0000000000000000
+ 
+                                                 )
+           INS-82763_FOV_REF_ANGLE             = ( 15.0 )
+           INS-82763_FOV_ANGLE_UNITS           = 'DEGREES'
+ 
+           \begintext
+ 
+ 
+MIMI Pixel Parameters
+----------------------------------------------------------
+ 
+   These parameters describe the pixel structure associated with the
+   instruments and their fields of views. In some cases this is a
+   generalization of the notion of pixel, in that instead of representing
+   pixels on a CCD they may represent a collection of individual detectors.
+ 
+   Charge-Energy-Mass Spectrometer (CHEMS):
+ 
+           \begindata
+ 
+           INS-82760_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82760_PIXEL_SAMPLES         = ( 1 )
+           INS-82760_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+   Ion and Neutral Camera (INCA)
+ 
+           \begindata
+ 
+           INS-82761_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82761_PIXEL_SAMPLES         = ( 1 )
+           INS-82761_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+   Low Energy Magnetospheric Measurements System 1 (LEMMS1)
+ 
+           \begindata
+ 
+           INS-82762_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82762_PIXEL_SAMPLES         = ( 1 )
+           INS-82762_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+   Low Energy Magnetospheric Measurements System 2 (LEMMS2)
+ 
+           \begindata
+ 
+           INS-82763_FOV_CENTER_PIXEL      = ( 0, 0 )
+           INS-82763_PIXEL_SAMPLES         = ( 1 )
+           INS-82763_PIXEL_LINES           = ( 1 )
+ 
+           \begintext
+ 
+ 
+Instrument Mode Timing
+----------------------------------------------------------
+ 
+   The following values were provided as samples in [5]. These values are
+   defined in [5] as follows:
+ 
+ 
+           ``The initial values for the following keywords are given
+           per instrument number:
+ 
+           INS[instrument number]_[instrument acronym]_MODE_NAME
+           INS[instrument number]_[instrument acronym]_TRIGGER_OFFSET
+           INS[instrument number]_[instrument acronym]_CYCLE_DURATION
+ 
+           INS..._MODE_NAME contains the name of the instrument mode for
+           the INS..._TRIGGER_OFFSET and INS..._CYCLE_DURATION
+           keywords.
+ 
+           INS..._TRIGGER_OFFSET specifies the reference time of the
+           first instrument frame (to be calculated for a footprint)
+           relative to the time of transacting the corresponding TRIGGER
+           command. The units are SFOC duration.
+ 
+           INS..._CYCLE_DURATION specifies the duration between successive
+           instrument frames (from the first one) for the INS..._MODE_NAME.''
+ 
+ 
+ 
+Charge-Energy-Mass Spectrometer (CHEMS)
+ 
+           \begindata
+ 
+           INS-82760_MODE_NAME             = 'NOMINAL'
+           INS-82760_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82760_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+Ion and Neutral Camera (INCA)
+ 
+           \begindata
+ 
+           INS-82761_MODE_NAME             = 'NOMINAL'
+           INS-82761_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82761_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+Low Energy Magnetospheric Measurements System 1 (LEMMS1)
+ 
+           \begindata
+ 
+           INS-82762_MODE_NAME             = 'NOMINAL'
+           INS-82762_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82762_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+Low Energy Magnetospheric Measurements System 2 (LEMMS2)
+ 
+           \begindata
+ 
+           INS-82763_MODE_NAME             = 'NOMINAL'
+           INS-82763_TRIGGER_OFFSET        = '0:01:00.0'
+           INS-82763_CYCLE_DURATION        = '0:01:00.0'
+ 
+           \begintext
+ 
+ 
+NAIF ID Code to Name Mapping
+----------------------------------------------------------
+ 
+           \begindata
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_MIMI_CHEMS' )
+           NAIF_BODY_CODE                 += ( -82760 )
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_MIMI_INCA' )
+           NAIF_BODY_CODE                 += ( -82761 )
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_MIMI_LEMMS1' )
+           NAIF_BODY_CODE                 += ( -82762 )
+ 
+           NAIF_BODY_NAME                 += ( 'CASSINI_MIMI_LEMMS2' )
+           NAIF_BODY_CODE                 += ( -82763 )
+ 
+           \begintext
+ 
+ 
+Platform ID
+----------------------------------------------------------
+ 
+   The MIMI instruments are mounted on the Fields and Particles Palette, which
+   is connected to the Cassini Spacecraft body. Therefore the values stored in
+   the keywords below are -82000
+ 
+           \begindata
+ 
+           INS-82760_PLATFORM_ID           = ( -82000 )
+           INS-82761_PLATFORM_ID           = ( -82000 )
+           INS-82762_PLATFORM_ID           = ( -82000 )
+           INS-82763_PLATFORM_ID           = ( -82000 )
+ 
+           \begintext
+ 

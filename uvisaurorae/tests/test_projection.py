@@ -11,13 +11,13 @@ from uvisaurorae.projection import (
     project_data_parallel,
 )
 
-test_data_dir = importlib_resources.files("uvis_auroral_projections").joinpath(
+test_data_dir = importlib_resources.files("uvisaurorae").joinpath(
     "tests/data/projection"
 )
 
-metakernel = "D:/PhD/Datasets/SPICE_minimal/cassini_metakernel.mk"
+spice_dir = test_data_dir / "spice"
 
-uvis_proj = UVISAuroralProjector(90, 90, metakernel)
+uvis_proj = UVISAuroralProjector(90, 90, spice_dir)
 
 
 def test_projection_setup():

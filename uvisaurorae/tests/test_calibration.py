@@ -9,7 +9,7 @@ from scipy.io import readsav
 
 from uvisaurorae.calibration import UVISCalibrator
 
-test_data_dir = importlib_resources.files("uvis_auroral_projections").joinpath(
+test_data_dir = importlib_resources.files("uvisaurorae").joinpath(
     "tests/data/calibration"
 )
 
