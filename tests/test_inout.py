@@ -1,10 +1,11 @@
-import importlib_resources
+from pathlib import Path
+
 import numpy as np
 from numpy.testing import assert_almost_equal
 
 from uvisaurorae.inout import load_integrated_data
 
-test_data_dir = importlib_resources.files("uvisaurorae").joinpath("tests/data/inout")
+test_data_dir = Path(__file__).parent.joinpath("data/inout")
 
 
 def test_data_input_compressed():

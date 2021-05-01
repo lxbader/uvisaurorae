@@ -1,6 +1,6 @@
 import datetime as dt
+from pathlib import Path
 
-import importlib_resources
 import numpy as np
 import pytest
 import spiceypy as spice
@@ -9,9 +9,7 @@ from scipy.io import readsav
 
 from uvisaurorae.calibration import UVISCalibrator
 
-test_data_dir = importlib_resources.files("uvisaurorae").joinpath(
-    "tests/data/calibration"
-)
+test_data_dir = Path(__file__).parent.joinpath("data/calibration")
 
 pytime = dt.datetime.strptime("2008-224T04:30:06", "%Y-%jT%H:%M:%S")
 ettime = spice.datetime2et(pytime)

@@ -1,6 +1,6 @@
 import datetime as dt
+from pathlib import Path
 
-import importlib_resources
 import numpy as np
 import spiceypy as spice
 from numpy.testing import assert_almost_equal
@@ -11,9 +11,7 @@ from uvisaurorae.projection import (
     project_data_parallel,
 )
 
-test_data_dir = importlib_resources.files("uvisaurorae").joinpath(
-    "tests/data/projection"
-)
+test_data_dir = Path(__file__).parent.joinpath("data/projection")
 
 spice_dir = test_data_dir / "spice"
 
