@@ -6,6 +6,5 @@ dist
 .python-version
 Lib
 Scripts
-*.cfg
 *.log
 .idea
