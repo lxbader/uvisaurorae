@@ -6,11 +6,13 @@ from uvisaurorae.projection import UVISAuroralProjector
 
 if __name__ == "__main__":
 
-    logging.basicConfig(filename=str(Path.cwd() / "example.log"), level=logging.INFO)
+    base_dir = Path("D:/uvis_projection_test")
 
-    uvis_dir = Path("D:/uvis_projection_test/uvis_data")
-    spice_dir = Path("D:/uvis_projection_test/spice_data")
-    projection_dir = Path("D:/uvis_projection_test/projections")
+    logging.basicConfig(filename=str(base_dir / "example.log"), level=logging.INFO)
+
+    uvis_dir = base_dir / "uvis_data"
+    spice_dir = base_dir / "spice_data"
+    projection_dir = base_dir / "projections"
     uvis_projector = UVISAuroralProjector(720, 720, spice_dir)
 
     cmd_base = dict(
