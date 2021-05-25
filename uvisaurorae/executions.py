@@ -1,4 +1,6 @@
 import datetime as dt
+import importlib_resources
+import json
 import warnings
 
 import matplotlib.pyplot as plt
@@ -16,6 +18,15 @@ class CommandError(Exception):
         super(CommandError, self).__init__(msg)
 
 
+def get_full_execution_list():
+    execution_list_file = importlib_resources.files("uvisaurorae.resources").joinpath(
+        "full_command_list.json"
+    )
+    with open(execution_list_file, "r") as f:
+        execution_list = json.loads(f.read())
+    return execution_list
+
+
 def execute_projection_command(cmd_dict):
     projection_mode = cmd_dict.pop("projection_mode", None)
     if projection_mode is None:
@@ -24,6 +35,7 @@ def execute_projection_command(cmd_dict):
         cmd_dict.pop("clean", None)
         split_files(**cmd_dict)
     elif projection_mode == "combine":
+        cmd_dict.pop("only_idx", None)
         combine_files(**cmd_dict)
     else:
         raise CommandError("Invalid projection mode given")
@@ -149,7 +161,7 @@ def combine_files(
     spice_dir,
     uvis_projector,
     projection_dir,
-    sensitivity=1,
+    sensitivity=5,
     creator="unknown",
     n_workers=None,
     overwrite=False,
