@@ -67,7 +67,7 @@ if __name__ == "__main__":
         )
     )
 
-    # Self-defined projection splitting a file into several images but only actually projecting the 22nd and 23rd image
+    # Self-defined projection splitting a file into several images but only actually projecting the 21st and 22nd image
     # of the collection
     execute_projection_command(
         dict(
@@ -76,6 +76,6 @@ if __name__ == "__main__":
             release_number=47,
             sensitivity=1,
             projection_mode="split",
-            only_idx=[21, 22],
+            only_idx=[20, 21],
         )
     )

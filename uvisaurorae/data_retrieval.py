@@ -1,6 +1,7 @@
 import bz2
 import datetime as dt
 import logging
+from pathlib import Path
 import re
 import uuid
 
@@ -84,6 +85,8 @@ def download_spice_kernels(kernels, save_dir, overwrite=False):
 
 
 def make_metakernel(kernel_dir, kernels=None):
+    if not kernel_dir.exists():
+        Path.mkdir(kernel_dir, parents=True)
     metakernel_file = kernel_dir / (uuid.uuid4().hex + ".tm")
     if kernels:
         kernels = [kernel_dir / k for k in kernels]
@@ -94,12 +97,13 @@ def make_metakernel(kernel_dir, kernels=None):
         f.write("\\begindata\n")
         f.write("PATH_VALUES=('" + str(kernel_dir) + "',)\n")
         f.write("PATH_SYMBOLS=('A',)\n")
-        f.write("KERNELS_TO_LOAD=(\n")
-        for k in kernels:
-            if ".tm" in str(k):
-                continue
-            f.write("'$A/" + str(k.relative_to(kernel_dir)) + "',\n")
-        f.write(")\n")
+        if kernels:
+            f.write("KERNELS_TO_LOAD=(\n")
+            for k in kernels:
+                if ".tm" in str(k):
+                    continue
+                f.write("'$A/" + str(k.relative_to(kernel_dir)) + "',\n")
+            f.write(")\n")
         f.write("\\begintext\n")
     return metakernel_file
 
