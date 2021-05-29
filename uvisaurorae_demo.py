@@ -9,7 +9,10 @@ if __name__ == "__main__":
 
     base_dir = Path("D:/uvis_projection_test")
 
+    # Logging to file
     # logging.basicConfig(filename=str(base_dir / "example.log"), level=logging.INFO)
+
+    # Logging to console
     logging.basicConfig(level=logging.INFO)
 
     uvis_dir = base_dir / "uvis_data"
@@ -17,6 +20,7 @@ if __name__ == "__main__":
     projection_dir = base_dir / "projections"
     uvis_projector = UVISAuroralProjector(720, 720, spice_dir)
 
+    # Base components to be used for all projections
     cmd_base = dict(
         uvis_dir=uvis_dir,
         spice_dir=spice_dir,
@@ -25,8 +29,10 @@ if __name__ == "__main__":
         creator="LXBADER",
     )
 
+    # Get somewhat clean list for projecting all UVIS auroral images from the Cassini mission
     full_exec = get_full_execution_list()
 
+    # Perform first projection from the list
     execute_projection_command(
         dict(
             **cmd_base,
@@ -34,50 +40,35 @@ if __name__ == "__main__":
         )
     )
 
-    # execute_projection_command(
-    #     dict(
-    #         **cmd_base,
-    #         uvis_file_names=[
-    #             "FUV2017_102_08_21",
-    #             "FUV2017_102_09_14",
-    #             "FUV2017_102_10_23",
-    #         ],
-    #         release_number=59,
-    #         sensitivity=5,
-    #         projection_mode="combine",
-    #     )
-    # )
-    #
-    # execute_projection_command(
-    #     dict(
-    #         **cmd_base,
-    #         uvis_file_names=["FUV2017_213_00_39", "FUV2017_213_01_12"],
-    #         release_number=60,
-    #         sensitivity=5,
-    #         projection_mode="combine",
-    #     )
-    # )
-    #
-    # execute_projection_command(
-    #     dict(
-    #         **cmd_base,
-    #         uvis_file_names=["FUV2017_167_20_15"],
-    #         release_number=59,
-    #         sensitivity=1,
-    #         projection_mode="split",
-    #     )
-    # )
-    #
-    # execute_projection_command(
-    #     dict(
-    #         **cmd_base,
-    #         uvis_file_names=["FUV2017_220_01_29"],
-    #         release_number=60,
-    #         sensitivity=1,
-    #         projection_mode="split",
-    #     )
-    # )
+    # Self-defined projection combining some files
+    execute_projection_command(
+        dict(
+            **cmd_base,
+            uvis_file_names=[
+                "FUV2017_102_08_21",
+                "FUV2017_102_09_14",
+                "FUV2017_102_10_23",
+            ],
+            release_number=59,
+            sensitivity=5,
+            projection_mode="combine",
+            clean=True,
+        )
+    )
 
+    # Self-defined projection splitting a file into several images
+    execute_projection_command(
+        dict(
+            **cmd_base,
+            uvis_file_names=["FUV2017_167_20_15"],
+            release_number=59,
+            sensitivity=1,
+            projection_mode="split",
+        )
+    )
+
+    # Self-defined projection splitting a file into several images but only actually projecting the 22nd and 23rd image
+    # of the collection
     execute_projection_command(
         dict(
             **cmd_base,
@@ -85,17 +76,6 @@ if __name__ == "__main__":
             release_number=47,
             sensitivity=1,
             projection_mode="split",
-            only_idx=[21],  # , 22, 23],
+            only_idx=[21, 22],
         )
     )
-
-    # execute_projection_command(
-    #     dict(
-    #         **cmd_base,
-    #         uvis_file_names=["FUV2016_278_09_22"],
-    #         release_number=57,
-    #         sensitivity=1,
-    #         projection_mode="combine",
-    #         clean=True,
-    #     )
-    # )
