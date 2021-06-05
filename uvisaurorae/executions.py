@@ -1,6 +1,8 @@
 import datetime as dt
 import json
 import warnings
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 import importlib_resources
 import matplotlib.pyplot as plt
@@ -10,24 +12,28 @@ import spiceypy as spice
 from uvisaurorae.data_retrieval import download_data
 from uvisaurorae.inout import load_integrated_data, save_to_fits
 from uvisaurorae.plotting import plot_auroral_image
-from uvisaurorae.projection import project_data, project_data_parallel
+from uvisaurorae.projection import (
+    UVISAuroralProjector,
+    project_data,
+    project_data_parallel,
+)
 
 
 class CommandError(Exception):
-    def __init__(self, msg=None):
+    def __init__(self, msg: Optional[str] = None):
         super(CommandError, self).__init__(msg)
 
 
-def get_full_execution_list():
-    execution_list_file = importlib_resources.files("uvisaurorae.resources").joinpath(
+def get_full_execution_list() -> List[Dict[str, Any]]:
+    execution_list_file = importlib_resources.files("uvisaurorae.resources").joinpath(  # type: ignore
         "full_command_list.json"
     )
     with open(execution_list_file, "r") as f:
-        execution_list = json.loads(f.read())
+        execution_list: List[Dict[str, Any]] = json.loads(f.read())
     return execution_list
 
 
-def execute_projection_command(cmd_dict):
+def execute_projection_command(cmd_dict: Dict[str, Any]) -> None:
     projection_mode = cmd_dict.pop("projection_mode", None)
     if projection_mode is None:
         raise CommandError("No projection mode given")
@@ -42,19 +48,19 @@ def execute_projection_command(cmd_dict):
 
 
 def split_files(
-    uvis_file_names,
-    release_number,
-    uvis_dir,
-    spice_dir,
-    uvis_projector,
-    projection_dir,
-    sensitivity=1,
-    creator="unknown",
-    n_workers=None,
-    overwrite=False,
-    compress=True,
-    only_idx=None,
-):
+    uvis_file_names: List[str],
+    release_number: int,
+    uvis_dir: Path,
+    spice_dir: Path,
+    uvis_projector: UVISAuroralProjector,
+    projection_dir: Path,
+    sensitivity: int = 1,
+    creator: str = "unknown",
+    n_workers: Optional[int] = None,
+    overwrite: bool = False,
+    compress: bool = True,
+    only_idx: Optional[List[int]] = None,
+) -> None:
 
     files = [
         download_data(
@@ -70,15 +76,15 @@ def split_files(
 
     proj_func = project_data if n_workers == 1 else project_data_parallel
 
-    metadata = None
-    et_times = None
-    int_data = None
+    metadata: Dict[str, Any] = dict()
+    et_times = np.array([])
+    int_data = np.array([])
     for file in files:
         lbl_suffix = ".LBL" if ".DAT" in str(file) else ".lbl"
         tmp_metadata, tmp_et_times, tmp_int_data = load_integrated_data(
             file, str(file).split(".DAT")[0] + lbl_suffix
         )
-        if metadata is None:
+        if not metadata.keys():
             metadata = tmp_metadata
             et_times = tmp_et_times
             int_data = tmp_int_data
@@ -108,7 +114,7 @@ def split_files(
         max_list = max_list[only_idx]
 
     for rec_start, rec_stop in zip(min_list, max_list):
-        save_metadata = dict()
+        save_metadata: Dict[str, Any] = dict()
         save_metadata["START_TIME"] = metadata["START_TIME"] + dt.timedelta(
             seconds=rec_start * metadata["INTEGRATION_DURATION"]
         )
@@ -124,7 +130,7 @@ def split_files(
         if n_workers != 1:
             kwargs.update(n_workers=n_workers)
 
-        proj_sum, proj_num, proj_min_angle = proj_func(
+        proj_sum, proj_num, proj_min_angle = proj_func(  # type: ignore
             uvis_projector,
             int_data,
             et_times,
@@ -155,19 +161,19 @@ def split_files(
 
 
 def combine_files(
-    uvis_file_names,
-    release_number,
-    uvis_dir,
-    spice_dir,
-    uvis_projector,
-    projection_dir,
-    sensitivity=5,
-    creator="unknown",
-    n_workers=None,
-    overwrite=False,
-    compress=True,
-    clean=True,
-):
+    uvis_file_names: List[str],
+    release_number: int,
+    uvis_dir: Path,
+    spice_dir: Path,
+    uvis_projector: UVISAuroralProjector,
+    projection_dir: Path,
+    sensitivity: int = 1,
+    creator: str = "unknown",
+    n_workers: Optional[int] = None,
+    overwrite: bool = False,
+    compress: bool = True,
+    clean: bool = True,
+) -> None:
     file_list = [
         download_data(
             n,
@@ -184,7 +190,7 @@ def combine_files(
 
     uvis_projector.reset_spice()
 
-    save_metadata = dict()
+    save_metadata: Dict[str, Any] = dict()
     save_metadata["START_TIME"] = dt.datetime.now()
     save_metadata["STOP_TIME"] = dt.datetime.now()
     save_metadata["TOTAL_EXPOSURE"] = 0
@@ -222,7 +228,7 @@ def combine_files(
         if n_workers != 1:
             kwargs.update(n_workers=n_workers)
 
-        proj_sum, proj_num, proj_min_angle = proj_func(
+        proj_sum, proj_num, proj_min_angle = proj_func(  # type: ignore
             uvis_projector,
             int_data,
             et_times,
@@ -238,21 +244,21 @@ def combine_files(
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
-        all_proj_sum = np.nansum(all_proj_sum, axis=0)
-        all_proj_num = np.nansum(all_proj_num, axis=0)
-        all_proj_min_angle = np.nanmin(all_proj_min_angle, axis=0)
-        all_proj_min_angle[all_proj_num == 0] = np.nan
-        projection = all_proj_sum / all_proj_num
+        final_proj_sum = np.nansum(all_proj_sum, axis=0)
+        final_proj_num = np.nansum(all_proj_num, axis=0)
+        final_proj_min_angle = np.nanmin(all_proj_min_angle, axis=0)
+        final_proj_min_angle[final_proj_num == 0] = np.nan
+        final_projection = final_proj_sum / final_proj_num
 
     file_name, hemisphere = save_to_fits(
         projection_dir,
-        projection,
-        all_proj_min_angle,
+        final_projection,
+        final_proj_min_angle,
         creator,
         save_metadata,
     )
 
-    plot_auroral_image(projection, hemisphere=hemisphere)
+    plot_auroral_image(final_projection, hemisphere=hemisphere)
     plot_dir = file_name.parent / "previews"
     if not plot_dir.exists():
         plot_dir.mkdir(parents=True)
@@ -260,7 +266,9 @@ def combine_files(
     plt.close()
 
 
-def get_split_limits(et_times, sensitivity=1):
+def get_split_limits(
+    et_times: np.ndarray, sensitivity: int = 1
+) -> Tuple[np.ndarray, np.ndarray]:
     # Get UVIS boresight in KSM coordinates
     boresight = np.array([0, 0, 1])
     boresight_ksm = np.full((len(et_times), 3), np.nan)
@@ -303,4 +311,7 @@ def get_split_limits(et_times, sensitivity=1):
             continue
         minlist = np.append(minlist, this_idx)
         maxlist = np.append(maxlist, min(next_idx + 1, len(et_times) - 2))
-    return minlist, maxlist
+    if not len(minlist):
+        minlist = np.array([0])
+        maxlist = np.array([len(et_times) - 1])
+    return minlist.astype(int), maxlist.astype(int)

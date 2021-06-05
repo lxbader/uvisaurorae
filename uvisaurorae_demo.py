@@ -29,15 +29,16 @@ if __name__ == "__main__":
     )
 
     # Get somewhat clean list for projecting all UVIS auroral images from the Cassini mission
-    # full_exec = get_full_execution_list()
+    full_exec = get_full_execution_list()
 
     # Perform first projection from the list
-    # execute_projection_command(
-    #     dict(
-    #         **cmd_base,
-    #         **full_exec[0],
-    #     )
-    # )
+    execute_projection_command(
+        dict(
+            **cmd_base,
+            **full_exec[0],
+            # n_workers=1,
+        )
+    )
 
     # Self-defined projection combining some files
     execute_projection_command(
@@ -54,10 +55,6 @@ if __name__ == "__main__":
             clean=True,
         )
     )
-
-    import sys
-
-    sys.exit()
 
     # Self-defined projection splitting a file into several images
     execute_projection_command(

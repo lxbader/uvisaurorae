@@ -1,4 +1,5 @@
 import datetime as dt
+from typing import Any, Dict, List, Optional, Tuple
 
 import importlib_resources
 import numpy as np
@@ -8,16 +9,16 @@ from scipy.io import readsav
 
 
 class CalibrationException(Exception):
-    def __init__(self, msg=None):
+    def __init__(self, msg: Optional[str] = None):
         super(CalibrationException, self).__init__(msg)
 
 
 class UVISCalibrator(object):
-    def __init__(self, channel="FUV"):
+    def __init__(self, channel: str = "FUV"):
         self.uvis_channel = channel
         self.calib_dir = importlib_resources.files("uvisaurorae.resources").joinpath(
             "calibration_files"
-        )
+        )  # type: ignore
 
         self.wcal, self.ucal, self.ucalerr = self.get_lab_sensitivity()
         self.wavelength = self.get_wavelength()
@@ -31,7 +32,7 @@ class UVISCalibrator(object):
             self.calib_dir / "FLATFIELD_FUV_POSTBURN.txt"
         )
 
-    def get_lab_sensitivity(self):
+    def get_lab_sensitivity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         if self.uvis_channel != "FUV":
             raise CalibrationException(
                 f"Calibrations for channel {self.uvis_channel} not available."
@@ -42,7 +43,7 @@ class UVISCalibrator(object):
         ucalerr = np.append(lsdata[:, 2], lsdata[:, 5])
         return wcal, ucal, ucalerr
 
-    def get_wavelength(self, bbin=1):
+    def get_wavelength(self, bbin: int = 1) -> np.ndarray:
         if self.uvis_channel != "FUV":
             raise CalibrationException(
                 f"Wavelength scales for channel {self.uvis_channel} not available."
@@ -53,13 +54,13 @@ class UVISCalibrator(object):
         beta = np.arctan(beta) + np.radians(0.032) + 3.46465e-5
         lam = d * (np.sin(alpha) + np.sin(beta))
         if bbin == 1:
-            return lam
+            return np.array(lam)
         e_wavelength = np.full((int(1024 / bbin)), np.nan)
         for iii in range(len(e_wavelength)):
             e_wavelength[iii] = np.mean(lam[iii * bbin : (iii + 1) * bbin])
         return e_wavelength
 
-    def prep_cal_modifiers(self):
+    def prep_cal_modifiers(self) -> Tuple[np.ndarray, Dict[str, Any]]:
         # Load file
         spica_file = self.calib_dir / "spica_variability4_data.sav"
         spica_data = readsav(spica_file)
@@ -87,13 +88,13 @@ class UVISCalibrator(object):
         )
         return spice.datetime2et(spica_times), spica_data
 
-    def get_uvis_cal_modifier(self, et_time):
+    def get_uvis_cal_modifier(self, et_time: float) -> np.ndarray:
         # If observation was before the first file, return array of 1s
         if et_time < self.spica_times_et[0]:
             return np.ones(1024)
         # If observation was after the last file, return last array
         elif et_time > self.spica_times_et[-1]:
-            return self.spica_data["arr"].ratio[-1]
+            return np.array(self.spica_data["arr"].ratio[-1])
         # If observation was in between two files, do linear interpolation
         arg1 = np.where(self.spica_times_et <= et_time)[0][-1]
         arg2 = np.where(self.spica_times_et >= et_time)[0][0]
@@ -102,10 +103,10 @@ class UVISCalibrator(object):
         m = (specmod2 - specmod1) / (
             self.spica_times_et[arg2] - self.spica_times_et[arg1]
         )
-        return specmod1 + m * (et_time - self.spica_times_et[arg1])
+        return np.array(specmod1 + m * (et_time - self.spica_times_et[arg1]))
 
     @staticmethod
-    def read_spica_ff_file(file):
+    def read_spica_ff_file(file: str) -> np.ndarray:
         ff = np.zeros((64, 1024))
         skip_header_zero = 3
         for iii in range(64):
@@ -116,18 +117,20 @@ class UVISCalibrator(object):
             ff[iii, :] = tmp
         return ff
 
-    def get_uvis_ff_modifier(self, et_time):
+    def get_uvis_ff_modifier(self, et_time: float) -> np.ndarray:
         # Get times of flat field modifier files
         ff_path = self.calib_dir / "UVIS_flat-field_modifiers_2016-01-13"
         ff_files = sorted(ff_path.glob(f"{self.uvis_channel}*.dat"))
-        ff_times = [
+        ff_times_str = [
             str(ff_files[iii]).split("_UVIS")[0].split(self.uvis_channel)[-1]
             for iii in range(len(ff_files))
         ]
         ff_times = np.array(
             [
-                spice.datetime2et(dt.datetime.strptime(ff_times[iii], "%Y_%j_%H_%M_%S"))
-                for iii in range(len(ff_times))
+                spice.datetime2et(
+                    dt.datetime.strptime(ff_times_str[iii], "%Y_%j_%H_%M_%S")
+                )
+                for iii in range(len(ff_times_str))
             ]
         )
         # If observation was before the first flat field modifier file, return array of 1s
@@ -139,7 +142,7 @@ class UVISCalibrator(object):
                 np.fromfile(ff_files[-1], dtype="<(64,1024)f4", count=-1)
             )
             ff_array[61, :] = 1  # Why?
-            return ff_array
+            return np.array(ff_array)
         # If observation was in between two ff modifier files, do linear interpolation
         arg1 = np.where(ff_times < et_time)[0][-1]
         arg2 = np.where(ff_times > et_time)[0][0]
@@ -152,11 +155,11 @@ class UVISCalibrator(object):
         m = (ffarray2 - ffarray1) / (ff_times[arg2] - ff_times[arg1])
         ffarray = ffarray1 + m * (et_time - ff_times[arg1])
         ffarray[61, :] = 1  # Why?
-        return ffarray
+        return np.array(ffarray)
 
     # Interpolate each spectrum. Input in shape [line,band].
     @staticmethod
-    def interpolate_nans(wave, arr_in):
+    def interpolate_nans(wave: np.ndarray, arr_in: np.ndarray) -> np.ndarray:
         arr_out = np.zeros(np.shape(arr_in))
         for iii in range(np.shape(arr_in)[0]):
             spec = np.copy(arr_in[iii, :])
@@ -175,7 +178,9 @@ class UVISCalibrator(object):
 
     # window_def = [UL_BAND, UL_LINE, LR_BAND, LR_LINE]
     # bin_def = [BAND_BIN, LINE_BIN]
-    def get_interpolated_calibration(self, et_time, slit_width, window_def, bin_def):
+    def get_interpolated_calibration(
+        self, et_time: float, slit_width: int, window_def: List[int], bin_def: List[int]
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         # Check slit width validity
         if slit_width < 1 or slit_width > 2:
             raise CalibrationException("Invalid slit width.")

@@ -3,6 +3,8 @@ import time
 import warnings
 from itertools import product, repeat
 from multiprocessing import Pool, cpu_count
+from pathlib import Path
+from typing import List, Optional, Tuple
 
 import importlib_resources
 import numpy as np
@@ -16,7 +18,13 @@ logger = logging.getLogger(__name__)
 
 
 class UVISAuroralProjector(object):
-    def __init__(self, nbins_lon, nbins_lat, spice_dir, raise_spice_insufficient=True):
+    def __init__(
+        self,
+        nbins_lon: int,
+        nbins_lat: int,
+        spice_dir: Path,
+        raise_spice_insufficient: bool = True,
+    ):
         # Set up binning
         self.lon_bins = np.linspace(0, 360, num=nbins_lon + 1)
         self.lat_bins = np.linspace(-90, 90, num=nbins_lat + 1)
@@ -39,11 +47,11 @@ class UVISAuroralProjector(object):
                 self.is_master_bin[int(np.mean(tmp)), lat_idx] = True
 
         self.spice_dir = spice_dir
-        self.metakernels = []
+        self.metakernels: List[Path] = []
         self.raise_spice_insufficient = raise_spice_insufficient
         self.reset_spice()
 
-    def reset_spice(self):
+    def reset_spice(self) -> None:
         # Clear SPICE kernels
         spice.kclear()
 
@@ -57,20 +65,22 @@ class UVISAuroralProjector(object):
         # Note that "saturn1100.tpc" redefines the size of Saturn (may be needed to refresh the kernel pool before other
         # calculations using this parameter are performed)
         for kernel in ["naif0012.tls", "saturn1100.tpc", "frame_ksmag.tf"]:
-            k = importlib_resources.files("uvisaurorae.resources").joinpath(kernel)
+            k = importlib_resources.files("uvisaurorae.resources").joinpath(kernel)  # type: ignore
             try:
                 spice.kinfo(str(k))
             except spice.stypes.SpiceyError:
                 spice.furnsh(str(k))
 
-    def remove_metakernels(self):
+    def remove_metakernels(self) -> None:
         for mk in self.metakernels:
             if mk.exists():
                 mk.unlink()
         self.metakernels = []
 
     @staticmethod
-    def get_fov_vectors(line_bin, ul_corner_line, lr_corner_line):
+    def get_fov_vectors(
+        line_bin: int, ul_corner_line: int, lr_corner_line: int
+    ) -> Tuple[np.ndarray, np.ndarray]:
         # Calculate number of pixels along the sensor
         npx = int(np.ceil((lr_corner_line + 1 - ul_corner_line) / line_bin))
 
@@ -82,9 +92,9 @@ class UVISAuroralProjector(object):
         for iii in range(len(boundvec)):
             for jjj in range(iii + 1, len(boundvec)):
                 all_angles.append(np.arccos(np.dot(boundvec[iii], boundvec[jjj])))
-        all_angles = np.sort(np.unique(np.array(all_angles)))
-        width_rad = all_angles[0]  # short side
-        length_rad = all_angles[1]  # long side
+        sorted_angles = np.sort(np.unique(np.array(all_angles)))
+        width_rad = sorted_angles[0]  # short side
+        length_rad = sorted_angles[1]  # long side
 
         # Get all corner points between detector pixels
         all_corners = np.full((npx + 1, 2, 3), np.nan)
@@ -128,7 +138,9 @@ class UVISAuroralProjector(object):
 
         return fov_centers, fov_corners_supp
 
-    def proj_point(self, view_dir, et_time):
+    def proj_point(
+        self, view_dir: np.ndarray, et_time: float
+    ) -> Tuple[np.ndarray, float]:
         try:
             with spice.no_found_check():
                 center_proj_cart, _, _, found = spice.sincpt(
@@ -170,15 +182,15 @@ class UVISAuroralProjector(object):
 
 
 def project_data_parallel(
-    projector,
-    integrated_data,
-    et_times,
-    line_bin,
-    ul_corner_line,
-    lr_corner_line,
-    records=None,
-    n_workers=None,
-):
+    projector: UVISAuroralProjector,
+    integrated_data: np.ndarray,
+    et_times: np.ndarray,
+    line_bin: int,
+    ul_corner_line: int,
+    lr_corner_line: int,
+    records: Optional[List[int]] = None,
+    n_workers: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     tstart = time.time()
     logger.info("Starting projection in parallel mode")
     if n_workers is None:
@@ -189,8 +201,7 @@ def project_data_parallel(
     n_workers = min(n_workers, cpu_count())
 
     if records is None:
-        records = np.arange(integrated_data.shape[0] - 1)
-    records = records.astype(int)
+        records = np.arange(integrated_data.shape[0] - 1).astype(int)
     record_lists = np.array_split(records, n_workers)
     record_lists = [r for r in record_lists if len(r)]
 
@@ -223,15 +234,15 @@ def project_data_parallel(
 
 
 def project_data(
-    projector,
-    integrated_data,
-    et_times,
-    line_bin,
-    ul_corner_line,
-    lr_corner_line,
-    records=None,
-    disable_progress=False,
-):
+    projector: UVISAuroralProjector,
+    integrated_data: np.ndarray,
+    et_times: List[float],
+    line_bin: int,
+    ul_corner_line: int,
+    lr_corner_line: int,
+    records: Optional[List[int]] = None,
+    disable_progress: bool = False,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     tstart = time.time()
     if not disable_progress:
         logger.info("Starting projection")
@@ -247,8 +258,7 @@ def project_data(
 
     # Make list of records if needed
     if records is None:
-        records = np.arange(integrated_data.shape[0] - 1)
-    records = records.astype(int)
+        records = np.arange(integrated_data.shape[0] - 1).astype(int)
 
     fov_centers, fov_corners = projector.get_fov_vectors(
         line_bin, ul_corner_line, lr_corner_line
@@ -283,7 +293,6 @@ def project_data(
             inters_lat = 90 - np.abs(inters_corners[:, 1])
             is_polar = False
             if np.any(inters_lat < 1):
-                is_polar = True
                 polar_corners = [
                     [
                         inters_lat[iii] * np.cos(inters_lon[iii]),

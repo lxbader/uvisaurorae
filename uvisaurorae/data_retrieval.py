@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class DataRetrievalError(Exception):
-    def __init__(self, msg=None):
+    def __init__(self, msg: Optional[str] = None):
         super(DataRetrievalError, self).__init__(msg)
 
 
@@ -33,7 +33,7 @@ def list_all_spice_kernels() -> Tuple[
     """
     kernel_list = importlib_resources.files("uvisaurorae.resources").joinpath(
         "spice_cassini_standard_kernels.txt"
-    )
+    )  # type: ignore
     all_kernels = np.genfromtxt(kernel_list, dtype=str)
 
     static_kernels = []
@@ -83,7 +83,9 @@ def list_required_spice_kernels(uvis_file_name: str) -> List[str]:
     return list(required_kernels)
 
 
-def download_spice_kernels(kernels: List[str], save_dir: Path, overwrite: bool = False):
+def download_spice_kernels(
+    kernels: List[str], save_dir: Path, overwrite: bool = False
+) -> None:
     """Download a list of SPICE kernels from the NAIF PDS node for Cassini at
     https://naif.jpl.nasa.gov/pub/naif/pds/data/co-s_j_e_v-spice-6-v1.0/cosp_1000/data.
 

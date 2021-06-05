@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import matplotlib
 import matplotlib.colors as mcolors
 import matplotlib.patheffects as mpatheffects
@@ -7,7 +9,14 @@ import numpy as np
 matplotlib.use("Agg")
 
 
-def plot_auroral_image(plot_data, hemisphere, kr_min=0.5, kr_max=30, r_min=0, r_max=30):
+def plot_auroral_image(
+    plot_data: np.ndarray,
+    hemisphere: str,
+    kr_min: float = 0.5,
+    kr_max: float = 30,
+    r_min: float = 0,
+    r_max: float = 30,
+) -> Tuple[plt.Figure, plt.Axes]:
     plot_data[plot_data < kr_min] = kr_min
 
     lon_bins = np.linspace(0, 360, num=plot_data.shape[0] + 1)

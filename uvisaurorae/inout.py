@@ -4,6 +4,7 @@ import logging
 import re
 import tempfile
 from pathlib import Path
+from typing import Any, Dict, Optional, Tuple, Union
 
 import importlib_resources
 import numpy as np
@@ -17,12 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 class UVISDataError(Exception):
-    def __init__(self, msg=None):
+    def __init__(self, msg: Optional[str] = None):
         super(UVISDataError, self).__init__(msg)
 
 
 # Load leap second kernel if not loaded already
-lsk = importlib_resources.files("uvisaurorae.resources").joinpath("naif0012.tls")
+lsk = importlib_resources.files("uvisaurorae.resources").joinpath("naif0012.tls")  # type: ignore
 try:
     spice.kinfo(str(lsk))
 except spice.stypes.SpiceyError:
@@ -31,7 +32,7 @@ except spice.stypes.SpiceyError:
 uvis_cal = calibration.UVISCalibrator()
 
 
-def read_metadata(label_file):
+def read_metadata(label_file: Union[Path, str]) -> Dict[str, Any]:
     metalabels = [
         "FILE_RECORDS",
         "START_TIME",
@@ -66,7 +67,7 @@ def read_metadata(label_file):
                             else int(value)
                         )
                     except ValueError:
-                        metadata[label] = value
+                        metadata[label] = value  # type: ignore
                     break
             line = lf.readline().strip("\n")
 
@@ -78,15 +79,19 @@ def read_metadata(label_file):
 
     for item in ["START_TIME", "STOP_TIME"]:
         metadata[item] = dt.datetime.strptime(
-            metadata[item].strip(), "%Y-%jT%H:%M:%S.%f"
+            metadata[item].strip(), "%Y-%jT%H:%M:%S.%f"  # type: ignore
         )
 
-    metadata["CORE_ITEMS"] = [int(iii) for iii in metadata["CORE_ITEMS"].split(", ")]
+    metadata["CORE_ITEMS"] = [int(iii) for iii in metadata["CORE_ITEMS"].split(", ")]  # type: ignore
 
     return metadata
 
 
-def load_integrated_data(data_file, label_file, integration_method="GUSTIN_2016"):
+def load_integrated_data(
+    data_file: Union[Path, str],
+    label_file: Union[Path, str],
+    integration_method: str = "GUSTIN_2016",
+) -> Tuple[Dict[str, Any], np.ndarray, np.ndarray]:
     metadata = read_metadata(label_file)
     et_times = np.array(
         [
@@ -139,8 +144,8 @@ def load_integrated_data(data_file, label_file, integration_method="GUSTIN_2016"
     # Read data file
     data_fmt = f">({data_size[-1]},{data_size[-2]},{data_size[-3]})u2"
     if str(data_file).endswith(".bz2"):
-        with bz2.open(str(data_file), "rb") as f:
-            content = f.read()
+        with bz2.open(str(data_file), "rb") as f_comp:
+            content = f_comp.read()
         with tempfile.TemporaryDirectory() as temp_dir:
             tmp_file = Path(temp_dir) / "tmp.dat"
             with open(tmp_file, "wb") as f:
@@ -210,7 +215,12 @@ def load_integrated_data(data_file, label_file, integration_method="GUSTIN_2016"
     return metadata, et_times, integrated_data
 
 
-def set_fits_header(hdr, creator, metadata, integration_method):
+def set_fits_header(
+    hdr: fits.PrimaryHDU.header,
+    creator: str,
+    metadata: Dict[str, Any],
+    integration_method: str,
+) -> str:
     time_fmt = "%Y-%m-%d %H:%M:%S"
     hdr.set(
         "DATE",
@@ -252,13 +262,13 @@ def set_fits_header(hdr, creator, metadata, integration_method):
 
 
 def save_to_fits(
-    save_dir,
-    proj,
-    proj_min_angles,
-    creator,
-    metadata,
-    integration_method="GUSTIN_2016",
-):
+    save_dir: Union[str, Path],
+    proj: np.ndarray,
+    proj_min_angles: np.ndarray,
+    creator: str,
+    metadata: Dict[str, Any],
+    integration_method: str = "GUSTIN_2016",
+) -> Tuple[Path, str]:
     save_dir = Path(save_dir)
     if not save_dir.exists():
         save_dir.mkdir(parents=True)
