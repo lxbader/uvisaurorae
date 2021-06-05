@@ -3,7 +3,9 @@ from pathlib import Path
 
 all_cmds = []
 
-with open(Path.cwd() / "uvisaurorae/resources/processing_instructions_raw.txt", "r") as f:
+with open(
+    Path.cwd() / "uvisaurorae/resources/processing_instructions_raw.txt", "r"
+) as f:
     current_cmd = dict(
         uvis_file_names=[],
     )

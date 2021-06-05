@@ -1,9 +1,10 @@
 import bz2
 import datetime as dt
 import logging
-from pathlib import Path
 import re
 import uuid
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
 
 import importlib_resources
 import numpy as np
@@ -17,14 +18,26 @@ class DataRetrievalError(Exception):
         super(DataRetrievalError, self).__init__(msg)
 
 
-def list_all_spice_kernels():
+def list_all_spice_kernels() -> Tuple[
+    List[str], Dict[str, List[Union[str, dt.datetime]]]
+]:
+    """Return all SPICE kernels required to cover the Cassini Saturn tour.
+
+    :return: A list of general SPICE kernels which are always required, and a dict containing information about
+        time-dependent SPICE kernels. This dict has the keys:
+
+            * ``kernel``: List of kernel names
+            * ``start``: List of kernel start datetimes
+            * ``stop``: List of kernel stop datetimes
+
+    """
     kernel_list = importlib_resources.files("uvisaurorae.resources").joinpath(
         "spice_cassini_standard_kernels.txt"
     )
     all_kernels = np.genfromtxt(kernel_list, dtype=str)
 
     static_kernels = []
-    timed_kernels = dict(
+    timed_kernels: Dict[str, List[Union[str, dt.datetime]]] = dict(
         kernel=[],
         start=[],
         stop=[],
@@ -44,7 +57,14 @@ def list_all_spice_kernels():
     return static_kernels, timed_kernels
 
 
-def list_required_spice_kernels(uvis_file_name):
+def list_required_spice_kernels(uvis_file_name: str) -> List[str]:
+    """Return a list of SPICE kernels required to process a UVIS file.
+
+    :param uvis_file_name: UVIS file name.
+    :return: A list of required SPICE kernels.
+    :raise uvisaurorae.data_retrieval.DataRetrievalError: If ``uvis_file_name`` does not contain a date in the
+        format ``YYYY_DOY``.
+    """
     try:
         date_str = re.findall(r"\d{4}_\d{3}", uvis_file_name)[0]
     except IndexError:
@@ -60,10 +80,18 @@ def list_required_spice_kernels(uvis_file_name):
     required_kernels = np.append(
         static_kernels, np.array(timed_kernels["kernel"])[intersecting_idx]
     )
-    return required_kernels
+    return list(required_kernels)
 
 
-def download_spice_kernels(kernels, save_dir, overwrite=False):
+def download_spice_kernels(kernels: List[str], save_dir: Path, overwrite: bool = False):
+    """Download a list of SPICE kernels from the NAIF PDS node for Cassini at
+    https://naif.jpl.nasa.gov/pub/naif/pds/data/co-s_j_e_v-spice-6-v1.0/cosp_1000/data.
+
+    :param kernels: List of SPICE kernels to download.
+    :param save_dir: Path to the directory where downloaded SPICE data is to be stored.
+    :param overwrite: Whether existing data files in ``save_dir`` should be re-downloaded and overwritten.
+    :raise uvisaurorae.data_retrieval.DataRetrievalError: If a kernel cannot be downloaded.
+    """
     naif_root = "https://naif.jpl.nasa.gov/pub/naif/pds/data/co-s_j_e_v-spice-6-v1.0/cosp_1000/data"
     for kernel in kernels:
         save_file = save_dir / kernel
@@ -84,22 +112,32 @@ def download_spice_kernels(kernels, save_dir, overwrite=False):
     return
 
 
-def make_metakernel(kernel_dir, kernels=None):
+def make_metakernel(kernel_dir: Path, kernels: Optional[List[str]] = None) -> Path:
+    """Create a uniquely-named SPICE metakernel in ``kernel_dir`` and return its path. If ``kernels`` is `None`, this
+    function searches ``kernel_dir`` recursively and creates a metakernel containing all kernels found (except for
+    other metakernels with file ending `.tm`). If ``kernels`` is given, this function creates a metakernel with all
+    kernels contained in this input, whether they exist or not.
+
+    :param kernel_dir: Main SPICE kernel directory, typically containing subdirectories for each kernel type
+        (`fk`, `ck`, ...).
+    :param kernels: List of kernels to include in the metakernel this function creates.
+    :returns: Full path of the newly created metakernel file.
+    """
     if not kernel_dir.exists():
         Path.mkdir(kernel_dir, parents=True)
     metakernel_file = kernel_dir / (uuid.uuid4().hex + ".tm")
     if kernels:
-        kernels = [kernel_dir / k for k in kernels]
+        list_kernels: List[Path] = [kernel_dir / k for k in kernels]
     else:
-        kernels = list(kernel_dir.glob("*/*"))
+        list_kernels = list(kernel_dir.glob("*/*"))
     with open(metakernel_file, "w") as f:
         f.write("KPL/MK\n")
         f.write("\\begindata\n")
         f.write("PATH_VALUES=('" + str(kernel_dir) + "',)\n")
         f.write("PATH_SYMBOLS=('A',)\n")
-        if kernels:
+        if list_kernels:
             f.write("KERNELS_TO_LOAD=(\n")
-            for k in kernels:
+            for k in list_kernels:
                 if ".tm" in str(k):
                     continue
                 f.write("'$A/" + str(k.relative_to(kernel_dir)) + "',\n")
@@ -109,8 +147,25 @@ def make_metakernel(kernel_dir, kernels=None):
 
 
 def download_uvis_data(
-    uvis_file_name, release_number, save_dir, overwrite=False, compress=True
-):
+    uvis_file_name: str,
+    release_number: int,
+    save_dir: Path,
+    overwrite: bool = False,
+    compress: bool = True,
+) -> Path:
+    """Download a UVIS file from the PDS UVIS repository at https://pds-rings.seti.org/holdings/volumes/COUVIS_0xxx/
+    and save it in ``save_dir``. Automatically compresses the downloaded data file using
+    `bzip2 <https://docs.python.org/3/library/bz2.html>`_ before saving unless ``compress`` is set to `False`. Also
+    downloads the ``.LBL`` metadata file alongside the ``.DAT`` file containing the actual raw data. The metadata file is
+    never compressed.
+
+    :param uvis_file_name: Name of the UVIS file to download.
+    :param release_number: Number of the UVIS PDS release this file is part of.
+    :param save_dir: Path to the directory where downloaded UVIS data is to be stored.
+    :param overwrite: Whether existing data files in ``save_dir`` should be re-downloaded and overwritten.
+    :param compress: Whether downloaded data files should be saved with compression.
+    :returns: Full path of the downloaded UVIS data file.
+    """
     pds_uvis_root = "https://pds-rings.seti.org/holdings/volumes/COUVIS_0xxx/"
     try:
         date_str = re.findall(r"\d{4}_\d{3}", uvis_file_name)[0]
@@ -140,8 +195,8 @@ def download_uvis_data(
             raise DataRetrievalError(f"Download of UVIS file {this_file} failed")
         if compress and suffix == ".DAT":
             logger.info(f"Compressing UVIS file {this_file}")
-            with bz2.open(save_file, "wb") as f:
-                f.write(data.content)
+            with bz2.open(save_file, "wb") as f_comp:
+                f_comp.write(data.content)
         else:
             with open(save_file, "wb") as f:
                 f.write(data.content)
@@ -150,8 +205,25 @@ def download_uvis_data(
 
 
 def download_data(
-    uvis_file_name, release_number, uvis_dir, spice_dir, overwrite=False, compress=True
-):
+    uvis_file_name: str,
+    release_number: int,
+    uvis_dir: Path,
+    spice_dir: Path,
+    overwrite: bool = False,
+    compress: bool = True,
+) -> Path:
+    """
+    Download all data required to process the UVIS file ``uvis_file_name``. This includes the raw UVIS data file itself
+    as well as the accompanying metadata file, plus all SPICE kernels needed to cover the exposure of the observation.
+
+    :param uvis_file_name: Name of the UVIS file to download.
+    :param release_number: Number of the UVIS PDS release this file is part of.
+    :param uvis_dir: Path to the directory where downloaded UVIS data is to be stored.
+    :param spice_dir: Path to the directory where downloaded SPICE data is to be stored.
+    :param overwrite: Whether existing data files in ``save_dir`` should be re-downloaded and overwritten.
+    :param compress: Whether downloaded UVIS data files should be saved with compression.
+    :return: Full path of the downloaded UVIS data file.
+    """
     # Get SPICE kernels
     required_kernels = list_required_spice_kernels(uvis_file_name)
     download_spice_kernels(required_kernels, spice_dir, overwrite=overwrite)
