@@ -33,6 +33,16 @@ uvis_cal = calibration.UVISCalibrator()
 
 
 def read_metadata(label_file: Union[Path, str]) -> Dict[str, Any]:
+    """
+    Read some metadata from a UVIS label file.
+
+    :param label_file: Path to the label file.
+    :return: Dictionary with some important or useful metadata items (``FILE_RECORDS``, ``START_TIME``, ``STOP_TIME``,
+        ``INTEGRATION_DURATION``, ``SLIT_STATE``, ``CORE_ITEMS``, ``UL_CORNER_LINE``, ``UL_CORNER_BAND``,
+        ``LR_CORNER_LINE``, ``LR_CORNER_BAND``, ``BAND_BIN``, ``LINE_BIN``).
+    :raise UVISDataError: If the label file does not contain all required metadata items or the item
+        ``INTEGRATION_DURATION`` is not a number.
+    """
     metalabels = [
         "FILE_RECORDS",
         "START_TIME",
@@ -92,6 +102,17 @@ def load_integrated_data(
     label_file: Union[Path, str],
     integration_method: str = "GUSTIN_2016",
 ) -> Tuple[Dict[str, Any], np.ndarray, np.ndarray]:
+    """
+    Load calibrated and wavelength-integrated UVIS data.
+
+    :param data_file: Path to the compressed or uncompressed UVIS data file.
+    :param label_file: Path to the accompanying label file.
+    :param integration_method: Which method to use for wavelength integration - the only sensible option for auroral
+        imagery is currently ``"GUSTIN_2016"``, referring to the integration method described in
+        http://dx.doi.org/10.1016/j.icarus.2015.12.048.
+    :return: Dictionary containing some metadata scraped from the label file, 1-D array listing the exposure start time
+        of each record, 2-D array of shape (# of records, # of pixels per record).
+    """
     metadata = read_metadata(label_file)
     et_times = np.array(
         [
@@ -221,6 +242,16 @@ def set_fits_header(
     metadata: Dict[str, Any],
     integration_method: str,
 ) -> str:
+    """
+    Set the header of a FITS file with metadata information.
+
+    :param hdr: FITS header to set.
+    :type hdr: FITS header
+    :param creator: Name of the file creator.
+    :param metadata: Metadata dictionary scraped from a UVIS PDS label file.
+    :param integration_method: Name of the integration method used.
+    :return: Name of the hemisphere on which the projection is located.
+    """
     time_fmt = "%Y-%m-%d %H:%M:%S"
     hdr.set(
         "DATE",
@@ -269,6 +300,17 @@ def save_to_fits(
     metadata: Dict[str, Any],
     integration_method: str = "GUSTIN_2016",
 ) -> Tuple[Path, str]:
+    """
+    Save a UVIS projection to a FITS file.
+
+    :param save_dir: Path to target directory.
+    :param proj: Projection array.
+    :param proj_min_angles: Minimum Cassini elevation angle array.
+    :param creator: Name of the file creator.
+    :param metadata: Metadata dictionary scraped from a UVIS PDS label file.
+    :param integration_method: Name of the integration method used.
+    :return: Path to saved FITS file, name of the hemisphere on which the projection is located.
+    """
     save_dir = Path(save_dir)
     if not save_dir.exists():
         save_dir.mkdir(parents=True)
