@@ -18,6 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 class UVISAuroralProjector(object):
+    """
+    Class for managing auroral projections.
+    """
+
     def __init__(
         self,
         nbins_lon: int,
@@ -25,6 +29,15 @@ class UVISAuroralProjector(object):
         spice_dir: Path,
         raise_spice_insufficient: bool = True,
     ):
+        """
+        Constructor method.
+
+        :param nbins_lon: Number of projection bins in longitude (0...360 deg).
+        :param nbins_lat: Number of projection bins in latitude (-90...90 deg).
+        :param spice_dir: Root directory of SPICE kernels.
+        :param raise_spice_insufficient: Whether the projector should raise an exception if a record is not covered by
+            SPICE kernels. If `false`, will silently skip records which cannot be projected.
+        """
         # Set up binning
         self.lon_bins = np.linspace(0, 360, num=nbins_lon + 1)
         self.lat_bins = np.linspace(-90, 90, num=nbins_lat + 1)
@@ -52,6 +65,12 @@ class UVISAuroralProjector(object):
         self.reset_spice()
 
     def reset_spice(self) -> None:
+        """
+        Clear SPICE kernel cache and reload all necessary kernels, needed for loading updated metakernels. Will create
+        a new unique metakernel and add its path to ``self.metakernels`` to make sure it can be deleted later.
+
+        :return: None
+        """
         # Clear SPICE kernels
         spice.kclear()
 
@@ -72,6 +91,11 @@ class UVISAuroralProjector(object):
                 spice.furnsh(str(k))
 
     def remove_metakernels(self) -> None:
+        """
+        Delete all metakernels which are listed in ``self.metakernels``.
+
+        :return: None
+        """
         for mk in self.metakernels:
             if mk.exists():
                 mk.unlink()
@@ -81,6 +105,15 @@ class UVISAuroralProjector(object):
     def get_fov_vectors(
         line_bin: int, ul_corner_line: int, lr_corner_line: int
     ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Return field of view vectors of a pixel binning in the SPICE UVIS frame.
+
+        :param line_bin: Number of neighboring pixels binned together.
+        :param ul_corner_line: First used pixel.
+        :param lr_corner_line: Last used pixel.
+        :return: Array with pixel center vectors of shape (# pixels, 3), array with pixel edge/corner vectors of shape
+            (# pixels, # edge/corner vectors / hardcoded 12, 3).
+        """
         # Calculate number of pixels along the sensor
         npx = int(np.ceil((lr_corner_line + 1 - ul_corner_line) / line_bin))
 
@@ -141,6 +174,13 @@ class UVISAuroralProjector(object):
     def proj_point(
         self, view_dir: np.ndarray, et_time: float
     ) -> Tuple[np.ndarray, float]:
+        """
+        Calculate the intersection of a viewing vector in the SPICE UVIS frame with Saturn's auroral layer.
+
+        :param view_dir: Viewing vector in the SPICE UVIS frame.
+        :param et_time: Ephemeris time.
+        :return: (longitude, latitude), elevation angle (all in deg)
+        """
         try:
             with spice.no_found_check():
                 center_proj_cart, _, _, found = spice.sincpt(
@@ -191,6 +231,19 @@ def project_data_parallel(
     records: Optional[List[int]] = None,
     n_workers: Optional[int] = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Project UVIS data in parallel mode; maps ``project_data`` to several parallel workers.
+
+    :param projector: Projector handling the projection.
+    :param integrated_data: Integrated UVIS intensity data in shape (# records, # pixels).
+    :param et_times: 1D array of shape (# records) holding the start of each record.
+    :param line_bin: LINE BIN metadata item.
+    :param ul_corner_line: UL CORNER LINE metadata item.
+    :param lr_corner_line: LR CORNER LINE metadata item.
+    :param records: List of record numbers to project, zero-indexed.
+    :param n_workers: Number of workers to perform the projection with.
+    :return: Projection grids with intensity sum, number of UVIS pixels in the bin, minimum spacecraft elevation angle.
+    """
     tstart = time.time()
     logger.info("Starting projection in parallel mode")
     if n_workers is None:
@@ -243,6 +296,19 @@ def project_data(
     records: Optional[List[int]] = None,
     disable_progress: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Project UVIS data with a single worker.
+
+    :param projector: Projector handling the projection.
+    :param integrated_data: Integrated UVIS intensity data in shape (# records, # pixels).
+    :param et_times: 1D array of shape (# records) holding the start of each record.
+    :param line_bin: LINE BIN metadata item.
+    :param ul_corner_line: UL CORNER LINE metadata item.
+    :param lr_corner_line: LR CORNER LINE metadata item.
+    :param records: List of record numbers to project, zero-indexed.
+    :param disable_progress: Whether to disable the progress bar.
+    :return: Projection grids with intensity sum, number of UVIS pixels in the bin, minimum spacecraft elevation angle.
+    """
     tstart = time.time()
     if not disable_progress:
         logger.info("Starting projection")

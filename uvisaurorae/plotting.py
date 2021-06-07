@@ -17,6 +17,17 @@ def plot_auroral_image(
     r_min: float = 0,
     r_max: float = 30,
 ) -> Tuple[plt.Figure, plt.Axes]:
+    """
+    Generate a preview plot of a projection. Color scale is logarithmic.
+
+    :param plot_data: Projection array to plot, shape (# longitude px, # latitude px)
+    :param hemisphere: Hemisphere to plot.
+    :param kr_min: Minimum intensity value.
+    :param kr_max: Maximum intensity value.
+    :param r_min: Minimum radius (colatitude) limit.
+    :param r_max: Maximum radius (colatitude) limit.
+    :return: Matplotlib figure and axes.
+    """
     plot_data[plot_data < kr_min] = kr_min
 
     lon_bins = np.linspace(0, 360, num=plot_data.shape[0] + 1)

@@ -25,6 +25,11 @@ class CommandError(Exception):
 
 
 def get_full_execution_list() -> List[Dict[str, Any]]:
+    """
+    Get pre-set list of execution commands for the entire Cassini UVIS auroral dataset.
+
+    :return: List of commands, each in form of a dict.
+    """
     execution_list_file = importlib_resources.files("uvisaurorae.resources").joinpath(  # type: ignore
         "full_command_list.json"
     )
@@ -34,6 +39,30 @@ def get_full_execution_list() -> List[Dict[str, Any]]:
 
 
 def execute_projection_command(cmd_dict: Dict[str, Any]) -> None:
+    """
+    Execute a projection command. The command dict can contain following values:
+
+        * ``projection_mode`` (`str`): Can be ``"split"`` or ``"combine"`` and defines how the image(s) are to be
+          treated (required).
+        * ``uvis_dir`` (`Path`): Directory to store UVIS data in (required).
+        * ``spice_dir`` (`Path`): Directory to store SPICE data in (required).
+        * ``projection_dir`` (`Path`): Directory to store projection output in (required).
+        * ``uvis_projector`` (`UVISAuroralProjector`): Initialized projector object (required).
+        * ``creator`` (`str`): Name of the file creator (optional).
+        * ``uvis_file_names`` (`List[str]`): List of UVIS file names (required).
+        * ``release_number`` (`int`): Number of the UVIS PDS release these images belong to (required).
+        * ``n_workers`` (`int`): Number of parallel workers to use (optional).
+        * ``sensitivity`` (`float`): Sensitivity for splitting or cleaning raw UVIS data (optional).
+        * ``only_idx`` (`List[int]`): Subset of image indices to project from a split file (optional, only for
+          ``projection_mode = "split"``).
+        * ``clean`` (`bool`): Whether to perform return scan cleaning (optional, only for
+          ``projection_mode = "combine"``).
+        * ``overwrite`` (`bool`): Whether to overwrite existing UVIS and SPICE data files (defaults to ``False``).
+        * ``compress`` (`bool`): Whether to save downloaded UVIS data in compressed format (defaults to ``True``).
+
+    :param cmd_dict: Command dictionary.
+    :return: None
+    """
     projection_mode = cmd_dict.pop("projection_mode", None)
     if projection_mode is None:
         raise CommandError("No projection mode given")
@@ -61,6 +90,9 @@ def split_files(
     compress: bool = True,
     only_idx: Optional[List[int]] = None,
 ) -> None:
+    """
+    See ``execute_projection_command`` for documentation of the input parameters.
+    """
 
     files = [
         download_data(
@@ -174,6 +206,9 @@ def combine_files(
     compress: bool = True,
     clean: bool = True,
 ) -> None:
+    """
+    See ``execute_projection_command`` for documentation of the input parameters.
+    """
     file_list = [
         download_data(
             n,
@@ -269,6 +304,14 @@ def combine_files(
 def get_split_limits(
     et_times: np.ndarray, sensitivity: int = 1
 ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Split a single file into clean segments to either clean a single image from return scans or to split a single data
+    file containing successive auroral scans into separate images.
+
+    :param et_times: List of ephemeris start times of all records.
+    :param sensitivity: Sensitivity parameter, may need some adjustment on a per-file basis.
+    :return: List of start records and list of stop records of all cleaned segments.
+    """
     # Get UVIS boresight in KSM coordinates
     boresight = np.array([0, 0, 1])
     boresight_ksm = np.full((len(et_times), 3), np.nan)
