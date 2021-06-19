@@ -14,7 +14,16 @@ class CalibrationException(Exception):
 
 
 class UVISCalibrator(object):
+    """
+    Class for handling UVIS data calibration.
+    """
+
     def __init__(self, channel: str = "FUV"):
+        """
+        Constructor method.
+
+        :param channel: UVIS data channel (`FUV` is the default and only accepted value, `EUV` not implemented).
+        """
         self.uvis_channel = channel
         self.calib_dir = importlib_resources.files("uvisaurorae.resources").joinpath(
             "calibration_files"
@@ -33,6 +42,11 @@ class UVISCalibrator(object):
         )
 
     def get_lab_sensitivity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Load laboratory-measured instrument sensitivities.
+
+        :return: Arrays containing wavelengths, sensitivities and sensitivity measurement errors.
+        """
         if self.uvis_channel != "FUV":
             raise CalibrationException(
                 f"Calibrations for channel {self.uvis_channel} not available."
@@ -44,6 +58,12 @@ class UVISCalibrator(object):
         return wcal, ucal, ucalerr
 
     def get_wavelength(self, bbin: int = 1) -> np.ndarray:
+        """
+        Determine wavelengths for a given wavelength binning.
+
+        :param bbin: Wavelength binning.
+        :return: Array containing each bin's central wavelength.
+        """
         if self.uvis_channel != "FUV":
             raise CalibrationException(
                 f"Wavelength scales for channel {self.uvis_channel} not available."
@@ -61,6 +81,12 @@ class UVISCalibrator(object):
         return e_wavelength
 
     def prep_cal_modifiers(self) -> Tuple[np.ndarray, Dict[str, Any]]:
+        """
+        Prepare calibration modifiers. These encode the temporal degradation of the sensor which was determined by
+        measuring the intensity of the star Spica every now and then.
+
+        :return: Array of timestamps at which modifiers were determined, dict containing the modifiers themselves.
+        """
         # Load file
         spica_file = self.calib_dir / "spica_variability4_data.sav"
         spica_data = readsav(spica_file)
@@ -89,6 +115,12 @@ class UVISCalibrator(object):
         return spice.datetime2et(spica_times), spica_data
 
     def get_uvis_cal_modifier(self, et_time: float) -> np.ndarray:
+        """
+        Get Spica-calibrated sensitivity modifiers for a certain timestamp.
+
+        :param et_time: Ephemeris time for which a modifier is to be retrieved.
+        :return: Modifier array.
+        """
         # If observation was before the first file, return array of 1s
         if et_time < self.spica_times_et[0]:
             return np.ones(1024)
@@ -107,6 +139,12 @@ class UVISCalibrator(object):
 
     @staticmethod
     def read_spica_ff_file(file: str) -> np.ndarray:
+        """
+        Read a flat field modifier file.
+
+        :param file: Filename.
+        :return: Flat field modifier array.
+        """
         ff = np.zeros((64, 1024))
         skip_header_zero = 3
         for iii in range(64):
@@ -118,6 +156,12 @@ class UVISCalibrator(object):
         return ff
 
     def get_uvis_ff_modifier(self, et_time: float) -> np.ndarray:
+        """
+        Determine flat field modifiers for a certain timestamp.
+
+        :param et_time: Ephemeris time for which flat field modifiers are to be loaded.
+        :return: Flat field modifier array.
+        """
         # Get times of flat field modifier files
         ff_path = self.calib_dir / "UVIS_flat-field_modifiers_2016-01-13"
         ff_files = sorted(ff_path.glob(f"{self.uvis_channel}*.dat"))
@@ -160,6 +204,13 @@ class UVISCalibrator(object):
     # Interpolate each spectrum. Input in shape [line,band].
     @staticmethod
     def interpolate_nans(wave: np.ndarray, arr_in: np.ndarray) -> np.ndarray:
+        """
+        Interpolate missing values in a spectral UVIS calibration array.
+
+        :param wave: Wavelengths of each spectral bin.
+        :param arr_in: Original array.
+        :return: Interpolated array.
+        """
         arr_out = np.zeros(np.shape(arr_in))
         for iii in range(np.shape(arr_in)[0]):
             spec = np.copy(arr_in[iii, :])
@@ -181,6 +232,17 @@ class UVISCalibrator(object):
     def get_interpolated_calibration(
         self, et_time: float, slit_width: int, window_def: List[int], bin_def: List[int]
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Get interpolated calibration array which is to be multiplied with a raw UVIS data cube to obtain a calibrated
+        image.
+
+        :param et_time: Ephemeris time of the observation for which a calibration array is needed.
+        :param slit_width: Slit width of the observation.
+        :param window_def: Window definition, containing spectral and spatial (pixel) ranges. Format is
+            `[UL_BAND, UL_LINE, LR_BAND, LR_LINE]`.
+        :param bin_def: Spectral and spatial binnings, of format `[BAND_BIN, LINE_BIN]`.
+        :return: Full spectral calibration array.
+        """
         # Check slit width validity
         if slit_width < 1 or slit_width > 2:
             raise CalibrationException("Invalid slit width.")
