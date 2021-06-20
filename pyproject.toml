@@ -15,7 +15,6 @@ Shapely = "^1.7.1"
 tqdm = "^4.60.0"
 astropy = "^4.2.1"
 scipy = "^1.6.3"
-Sphinx = "^4.0.2"
 
 [tool.poetry.dev-dependencies]
 black = "^21.4b2"
